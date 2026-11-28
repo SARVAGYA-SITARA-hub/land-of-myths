@@ -1,0 +1,2773 @@
+
+/* ============================================================ tokens */
+:root{
+  --bg:#0b0d12;
+  --bg-soft:#10131a;
+  --panel:#141821;
+  --panel-2:#1a1f2a;
+  --line:#232936;
+  --line-soft:#1c2230;
+  --ink:#e9eaf0;
+  --ink-2:#c2c7d4;
+  --dim:#8b94a6;
+  --faint:#606a7d;
+  --gold:#c9a45c;
+  --gold-2:#e6cd93;
+  --gold-dim:rgba(201,164,92,.14);
+  --blue:#7f9fbf;
+  --red:#a8473f;
+  --green:#6b9e78;
+
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+
+  --measure:68ch;
+  --r:10px;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.68;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+a{color:var(--gold-2);text-decoration:none;transition:color .12s}
+a:hover{color:#fff}
+img{max-width:100%;display:block}
+::selection{background:rgba(201,164,92,.28);color:#fff}
+
+/* scrollbars */
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+*::-webkit-scrollbar-thumb:hover{background:#2e3646}
+*::-webkit-scrollbar-track{background:transparent}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.wrap-n{max-width:800px;margin:0 auto;padding:0 26px}
+
+/* ============================================================ rail */
+.rail{
+  position:fixed;top:0;left:0;bottom:0;z-index:70;
+  width:66px;overflow:hidden;
+  background:linear-gradient(180deg,#0e1117,#0a0c11);
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;padding:0;
+  height:100vh;height:100dvh;      /* never stretch to document height */
+  transition:width .22s cubic-bezier(.4,0,.2,1),box-shadow .22s;
+}
+.rail:hover,.rail.open,body.rail-open .rail{
+  width:238px;box-shadow:14px 0 44px rgba(0,0,0,.55);
+}
+.rail-brand{
+  display:flex;align-items:center;gap:11px;height:60px;padding:0 22px;
+  color:var(--ink);white-space:nowrap;flex:none;
+  border-bottom:1px solid var(--line);font-family:var(--serif);font-size:1rem;
+}
+.rail-brand .mk{color:var(--gold);font-size:.92rem;flex:none;width:22px;text-align:center}
+.rail-brand:hover{color:var(--gold-2)}
+.rail-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 0}
+.rail-nav::-webkit-scrollbar{width:0}
+.ri{
+  display:flex;align-items:center;gap:11px;height:42px;padding:0 22px;
+  color:var(--dim);white-space:nowrap;font-size:.845rem;
+  border-left:2px solid transparent;transition:background .12s,color .12s;
+}
+.ri .ic{flex:none;width:22px;text-align:center;font-size:.82rem;opacity:.85}
+.ri .tx{opacity:0;transition:opacity .16s .04s}
+.rail:hover .ri .tx,.rail.open .ri .tx,body.rail-open .ri .tx{opacity:1}
+.ri:hover{color:var(--ink);background:rgba(255,255,255,.035)}
+.ri.on{color:var(--gold-2);border-left-color:var(--gold);background:rgba(201,164,92,.09)}
+.rail-div{height:1px;background:var(--line);margin:10px 16px}
+.rail-hd{
+  padding:0 22px;height:26px;display:flex;align-items:center;
+  font-size:.63rem;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);
+  white-space:nowrap;
+}
+.rail-hd .tx{opacity:0;transition:opacity .16s .04s}
+.rail:hover .rail-hd .tx,.rail.open .rail-hd .tx{opacity:1}
+.rail-foot{
+  flex:none;padding:14px 22px;border-top:1px solid var(--line);
+  font-size:.68rem;color:var(--faint);white-space:nowrap;line-height:1.45;
+}
+.rail-foot .tx{opacity:0;transition:opacity .16s .04s}
+.rail:hover .rail-foot .tx,.rail.open .rail-foot .tx{opacity:1}
+
+/* shell offset — shifts when the rail expands so content is never covered */
+.shell{
+  margin-left:66px;min-height:100vh;display:flex;flex-direction:column;
+  transition:margin-left .22s cubic-bezier(.4,0,.2,1);
+}
+body.rail-open .shell{margin-left:238px}
+.shell>footer{margin-top:auto}
+
+/* search inside the rail */
+.rail-search{
+  position:relative;display:flex;align-items:center;
+  height:38px;margin:0 0 6px;padding:0 16px;overflow:hidden;
+}
+.rail-search .ico{
+  position:absolute;left:26px;color:var(--faint);font-size:.85rem;
+  pointer-events:none;flex:none;
+}
+.rail-search input{
+  width:100%;background:var(--bg-soft);border:1px solid var(--line);
+  border-radius:7px;padding:7px 8px 7px 30px;color:var(--ink);
+  font:inherit;font-size:.82rem;outline:none;min-width:180px;
+  opacity:0;transition:opacity .14s;
+}
+.rail-search input::placeholder{color:var(--faint)}
+.rail-search input:focus{border-color:rgba(201,164,92,.6);background:#0d1017}
+.rail:hover .rail-search input,.rail.open .rail-search input,
+body.rail-open .rail-search input{opacity:1}
+.rail-search .sresults{top:calc(100% - 2px);left:16px;right:12px;width:auto}
+body.reading .rail-search input{background:rgba(255,255,255,.05)}
+
+/* slim top bar (search only) */
+.topbar{
+  position:sticky;top:0;z-index:50;height:56px;
+  display:flex;align-items:center;gap:12px;padding:0 24px;
+  background:rgba(11,13,18,.9);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.rail-toggle{
+  display:none;background:transparent;border:1px solid var(--line);color:var(--dim);
+  border-radius:7px;padding:5px 10px;font-size:1rem;cursor:pointer;line-height:1;
+}
+.rail-toggle:hover{border-color:var(--gold);color:var(--gold-2)}
+.tbtn{
+  border:1px solid var(--line);background:transparent;color:var(--dim);
+  padding:7px 14px;border-radius:7px;font:inherit;font-size:.78rem;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+}
+.tbtn:hover{border-color:var(--gold);color:var(--gold-2)}
+.tbtn.accent{border-color:rgba(201,164,92,.45);color:var(--gold-2);background:var(--gold-dim)}
+.tbtn.accent:hover{background:rgba(201,164,92,.22)}
+
+/* search */
+.search{position:relative;flex:0 1 260px}
+.search input{
+  width:100%;background:var(--bg-soft);border:1px solid #2b3342;
+  border-radius:7px;padding:8px 12px 8px 32px;color:var(--ink);
+  font:inherit;font-size:.84rem;outline:none;
+}
+.search input:focus{border-color:rgba(201,164,92,.6);background:#0d1017}
+.search input::placeholder{color:#717b8e}
+.search .ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:.8rem;pointer-events:none}
+.sresults{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:60vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  box-shadow:0 18px 40px rgba(0,0,0,.55);display:none;
+}
+.sresults.on{display:block}
+.sresults a{display:block;padding:9px 13px;border-bottom:1px solid var(--line-soft);font-size:.85rem;color:var(--ink-2)}
+.sresults a:last-child{border-bottom:0}
+.sresults a:hover,.sresults a.sel{background:var(--panel-2);color:#fff}
+.sresults .sn{display:block;font-size:.74rem;color:var(--faint);margin-top:3px;line-height:1.35}
+.sresults .k{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);display:block;margin-top:2px}
+.sresults .none{padding:12px 13px;color:var(--faint);font-size:.84rem}
+
+/* ============================================================ hero */
+.hero{position:relative;padding:88px 0 64px;border-bottom:1px solid var(--line);overflow:hidden}
+.hero:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(820px 400px at 12% -12%,rgba(201,164,92,.11),transparent 68%),
+    radial-gradient(680px 340px at 86% 4%,rgba(127,159,191,.09),transparent 70%);
+}
+.hero .wrap{position:relative}
+.eyebrow{font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+h1.display{
+  font-family:var(--serif);font-weight:400;margin:0 0 20px;
+  font-size:clamp(2.3rem,5vw,3.9rem);line-height:1.07;letter-spacing:-.018em;
+}
+h1.display em{font-style:italic;color:var(--gold-2)}
+.lede{font-size:1.075rem;color:#a6aebf;max-width:60ch;margin:0 0 32px;line-height:1.7}
+.cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{
+  display:inline-block;padding:12px 22px;border-radius:8px;font-size:.87rem;
+  letter-spacing:.03em;border:1px solid rgba(201,164,92,.65);
+  color:#12141a;background:linear-gradient(180deg,var(--gold-2),var(--gold));
+  font-weight:500;transition:all .15s;
+}
+.btn:hover{background:linear-gradient(180deg,#f2dfae,var(--gold-2));border-color:var(--gold-2)}
+.btn.ghost{border-color:#2d3546;background:transparent;color:#b6bdcb}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold-2)}
+
+/* ============================================================ book landing hero */
+.hero-grid{
+  display:grid;grid-template-columns:236px minmax(0,1fr);
+  gap:52px;align-items:center;
+}
+@media(max-width:760px){
+  .hero-grid{grid-template-columns:1fr;gap:28px;justify-items:center;text-align:center}
+  .hero-grid .hero-txt{text-align:center}
+  .hero-grid .cta{justify-content:center}
+}
+.hero-cover{display:flex;flex-direction:column;align-items:center;gap:14px}
+.hero-cover img{
+  width:100%;height:auto;max-height:352px;object-fit:contain;
+  border-radius:4px;
+  box-shadow:0 22px 54px rgba(0,0,0,.66),0 0 0 1px rgba(201,164,92,.18);
+}
+.hero-cover .hc-by{
+  font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold);opacity:.85;
+}
+.hero-txt .lede{max-width:62ch}
+.hero-txt .display{max-width:20ch}
+.hero-by{
+  font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);opacity:.9;margin:-6px 0 20px;
+}
+.hero-cover .ph{
+  width:100%;aspect-ratio:2/3;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;padding:22px 14px;text-align:center;
+  border:1px solid rgba(201,164,92,.3);border-radius:4px;
+  background:linear-gradient(160deg,rgba(201,164,92,.10),rgba(8,10,14,.7));
+  box-shadow:0 18px 40px rgba(0,0,0,.5);
+}
+.hero-cover .ph .ph-t{font-family:var(--serif);font-size:1.16rem;line-height:1.3;color:var(--gold)}
+.hero-cover .ph .ph-r{width:32px;height:1px;background:rgba(201,164,92,.55)}
+.hero-cover .ph .ph-s{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+
+/* ============================================================ book cards */
+.books{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:24px;padding:60px 0}
+/* a 360px minimum cannot fit a 380px phone once .wrap padding is counted */
+@media(max-width:560px){
+  .books{grid-template-columns:minmax(0,1fr);gap:18px;padding:36px 0}
+}
+.book{
+  display:flex;flex-direction:row;align-items:stretch;overflow:hidden;border-radius:14px;
+  border:1px solid var(--line);background:linear-gradient(168deg,var(--panel),var(--bg-soft));
+  transition:border-color .18s,transform .18s,box-shadow .18s;
+}
+.book:hover{border-color:rgba(201,164,92,.4);transform:translateY(-2px)}
+/* the cover is a real portrait book plate, set beside the title */
+.book .cover{
+  position:relative;overflow:hidden;flex:0 0 190px;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;background:#080a0e;
+  background:radial-gradient(320px 220px at 50% 0%,rgba(201,164,92,.10),transparent 70%),#080a0e;
+}
+.book .cover img{
+  display:block;width:100%;height:100%;max-height:278px;
+  object-fit:contain;border-radius:3px;
+  box-shadow:0 12px 30px rgba(0,0,0,.65),0 0 0 1px rgba(201,164,92,.15);
+}
+/* landscape plates (maps) sit in the same slot, letterboxed, so the pair matches */
+.book .cover img.wide{object-fit:contain;height:auto}
+.book .cover:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 82%,rgba(8,10,14,.55));
+}
+.book .cover .cnote{
+  position:absolute;bottom:8px;left:0;right:0;z-index:2;text-align:center;
+  font-size:.56rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--faint);opacity:.8;padding:0 6px;line-height:1.3;
+}
+/* typographic stand-in when a book has no cover art yet */
+.book .cover .ph{
+  width:100%;height:100%;max-height:278px;min-height:230px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;padding:18px 12px;text-align:center;
+  border:1px solid rgba(201,164,92,.28);border-radius:3px;
+  background:linear-gradient(160deg,rgba(201,164,92,.09),rgba(8,10,14,.6));
+}
+.book .cover .ph .ph-t{
+  font-family:var(--serif);font-size:1.02rem;line-height:1.3;color:var(--gold);
+  letter-spacing:.02em;
+}
+.book .cover .ph .ph-r{width:28px;height:1px;background:rgba(201,164,92,.5)}
+.book .cover .ph .ph-s{
+  font-size:.56rem;letter-spacing:.19em;text-transform:uppercase;color:var(--faint);
+}
+.book .body{padding:22px 24px 22px;display:flex;flex-direction:column;flex:1;min-width:0}
+.book .sub{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.book h3{font-family:var(--serif);font-weight:400;font-size:1.24rem;margin:0 0 5px;line-height:1.24}
+.book .byline{
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 12px;
+}
+.book p{color:var(--dim);font-size:.88rem;margin:0 0 16px;flex:1;line-height:1.6}
+@media(max-width:700px){
+  .book{flex-direction:column}
+  .book .cover{flex:none;height:250px}
+  .book .cover:after{background:linear-gradient(180deg,transparent 82%,rgba(8,10,14,.5))}
+}
+.book .meta{
+  display:flex;gap:18px;flex-wrap:wrap;font-size:.78rem;color:var(--faint);
+  border-top:1px solid var(--line-soft);padding-top:14px;font-variant-numeric:tabular-nums;
+}
+
+/* ============================================================ sections */
+.sec{padding:52px 0}
+.sec-head{
+  display:flex;align-items:baseline;gap:16px;margin-bottom:30px;
+  border-bottom:1px solid var(--line);padding-bottom:14px;
+}
+.sec-head h2{font-family:var(--serif);font-weight:400;font-size:1.72rem;margin:0}
+.sec-head .count{margin-left:auto;font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+
+/* ============================================================ chapter list */
+.chaps{display:flex;flex-direction:column}
+.chap{
+  display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:baseline;
+  padding:13px 14px;border-bottom:1px solid var(--line-soft);border-radius:7px;
+  transition:background .12s;
+}
+.chap:hover{background:var(--panel)}
+.chap .n{font-family:var(--mono);font-size:.79rem;color:var(--faint);font-variant-numeric:tabular-nums}
+.chap .t{font-family:var(--serif);font-size:1.04rem;color:var(--ink);line-height:1.35}
+.chap:hover .t{color:#fff}
+.chap .w{font-size:.75rem;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ============================================================ epigraph */
+.epigraph{
+  font-family:var(--serif);font-style:italic;font-size:1.02rem;line-height:2;
+  color:var(--gold-2);border-left:2px solid var(--gold);
+  padding:6px 0 6px 22px;margin:0 0 34px;max-width:52ch;
+}
+.epigraph span{display:block}
+.epigraph span:last-child{color:#f0dcae}
+
+/* A book's own verse on its landing page. Longer than the site epigraph, so it
+   gets more air, larger type, and the accent colour of the book itself. It must
+   read as verse, not as a bulleted list — no markers, generous line-height. */
+.epigraph-book{
+  max-width:54ch;line-height:2.05;font-size:1.0rem;margin:10px 0 32px;
+  color:#e2d3b4;border-left-color:rgba(168,50,74,.55);
+  padding:10px 0 10px 26px;
+}
+.epigraph-book span:not(.epi-note){
+  display:block;padding-left:0;margin-bottom:12px;position:static;
+}
+.epigraph-book span:not(.epi-note)::before{display:none}
+/* the line that names the rose gets the weight */
+.epigraph-book span:nth-of-type(4){color:#f3e2bd}
+.epigraph-book span:last-of-type{color:#f0dcae;font-style:italic}
+.epigraph-book .epi-note{
+  display:block;margin-top:16px;padding-left:0;
+  font-family:var(--sans);font-style:normal;font-size:.7rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+}
+.epigraph-book .epi-note::before{display:none}
+
+/* ============================================================ reading mode v2
+   The parchment IS the window. No card, no frame — the whole column right of
+   the rail is one old sheet, with a torn edge where it meets the rail.
+   Everything else (nav, search, workspace) lives in the rail. */
+body.reading{background:#0a0c11}
+body.reading .topbar{display:none}
+body.reading .shell{margin-left:66px;min-height:100vh;background:none;
+  display:flex;flex-direction:column;
+  transition:margin-left .26s cubic-bezier(.4,0,.2,1)}
+body.reading.rail-open .shell{margin-left:238px}
+
+/* the sheet, fixed to the viewport so the grain never stretches */
+.paper{
+  position:fixed;top:0;right:0;bottom:0;left:66px;z-index:0;
+  background-color:#efe5d0;
+  background-image:url("assets/paper.jpg");
+  background-size:cover;
+  background-position:center;
+  transition:left .22s cubic-bezier(.4,0,.2,1);
+}
+body.rail-open .paper{left:238px}
+
+/* torn left edge: an irregular silhouette of the page background over the paper */
+.tear{
+  position:fixed;top:0;bottom:0;left:66px;width:16px;z-index:2;
+  pointer-events:none;
+  transition:left .22s cubic-bezier(.4,0,.2,1);
+}
+body.rail-open .tear{left:238px}
+.tear svg{display:block;width:100%;height:100%}
+.tear path{fill:#0a0c11}
+/* soft fibre fringe where the tear meets the sheet */
+.tear:after{
+  content:"";position:absolute;top:0;bottom:0;right:-3px;width:7px;
+  background:linear-gradient(90deg,rgba(94,74,40,.30),transparent);
+}
+/* rake of shadow from the torn edge onto the sheet */
+.paper:after{
+  content:"";position:absolute;top:0;bottom:0;left:0;width:56px;
+  background:linear-gradient(90deg,rgba(78,60,32,.20),rgba(78,60,32,.05) 52%,transparent);
+  pointer-events:none;
+}
+
+/* text sits directly on the sheet */
+body.reading .shell{display:flex;flex-direction:column}
+body.reading .reader{
+  position:relative;z-index:1;
+  width:100%;max-width:720px;
+  margin:0 auto;                       /* centred inside the parchment column */
+  padding:clamp(46px,7vh,86px) 34px clamp(60px,9vh,110px);
+}
+body.reading .reader .chead{padding:0 0 30px;text-align:center}
+body.reading .reader .chead .kicker{
+  font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;
+  color:#7d5a1c;margin-bottom:16px;
+}
+body.reading .reader .chead h1{
+  font-family:var(--serif);font-weight:400;
+  font-size:clamp(1.9rem,3.7vw,2.7rem);margin:0 0 13px;line-height:1.15;
+  color:#2c2316;
+}
+body.reading .reader .chead .stats{
+  font-size:.82rem;color:#5f5440;letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+body.reading .reader .chead .rule{
+  width:110px;height:1px;margin:24px auto 0;
+  background:linear-gradient(90deg,transparent,#a8905f,transparent);
+}
+
+body.reading .reader .prose{
+  font-family:var(--serif);
+  font-size:clamp(1.06rem,.5vw + .95rem,1.17rem);
+  line-height:1.84;color:#2b2316;
+}
+body.reading .reader .prose p{margin:0 0 1.35em}
+/* true drop cap: two lines deep, text wraps beside it */
+body.reading .reader .prose>p:first-of-type:first-letter{
+  float:left;font-size:1.96em;line-height:.86;padding:.15em .1em 0 0;
+  color:#8a2f28;font-family:var(--serif);font-weight:400;
+}
+body.reading .reader .prose>p.first-letterless:first-of-type:first-letter{
+  float:none;font-size:inherit;line-height:inherit;padding:0;color:inherit;
+}
+body.reading .reader .prose em{color:#6d4a1e;font-style:italic}
+body.reading .reader .prose strong{color:#1d1810;font-weight:700}
+body.reading .reader .prose blockquote{
+  margin:1.6em 0;padding:2px 0 2px 20px;
+  border-left:2px solid #b08a45;color:#5b4d34;font-style:italic;
+}
+
+/* pager + footer sit on the sheet too */
+body.reading .pager{border-top:1px solid rgba(120,98,60,.28);position:relative;z-index:1}
+body.reading footer{
+  position:relative;z-index:1;border-top:1px solid rgba(120,98,60,.28);
+  color:#8a7d63;background:none;
+}
+body.reading footer a{color:#7a6437}
+body.reading .rail{border-right-color:#1a1712}
+
+@media(max-width:900px){
+  body.reading .shell{margin-left:0}
+  body.reading.rail-open .shell{margin-left:0}
+  .paper{left:0}
+  body.rail-open .paper{left:0}
+  .tear{display:none}
+}
+
+.pager{display:flex;justify-content:space-between;gap:18px;margin-top:56px;padding-top:26px;font-size:.88rem}
+.pager a{display:block;max-width:46%;color:#8a6a2c}
+.pager a:hover{color:#a03f35}
+.pager .r{text-align:right;margin-left:auto}
+.pager .lb{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#8a7d63;margin-bottom:5px}
+
+/* ============================================================ motion system
+   A "digital screen" feel: pages resolve in with a scan sweep, links carry a
+   light sweep, panels slide with weight. Respects reduced-motion. */
+:root{
+  --ease:cubic-bezier(.22,.68,.28,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --dur:.42s;
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+/* ============================================================ idle motion
+   Rules for everything below:
+     - never inside the prose column (it would break the manuscript illusion)
+     - every loop animates for a few seconds, then rests — constant motion is noise
+     - all of it is disabled by html[data-motion="off"] or system reduced-motion */
+
+/* 1. the gold rule under a chapter title: a slow reading light */
+body.reading .reader .chead .rule{
+  position:relative;overflow:hidden;
+  background:linear-gradient(90deg,transparent,#a8905f 18%,#6b5a38 50%,#a8905f 82%,transparent);
+}
+body.reading .reader .chead .rule:after{
+  content:"";position:absolute;top:0;bottom:0;left:0;width:26%;
+  background:linear-gradient(90deg,transparent,rgba(255,243,214,.95),transparent);
+  animation:ruleGlide 9s cubic-bezier(.4,0,.5,1) infinite;
+}
+@keyframes ruleGlide{
+  0%   {transform:translateX(-120%);opacity:0}
+  12%  {opacity:1}
+  46%  {transform:translateX(400%);opacity:1}
+  52%  {transform:translateX(400%);opacity:0}
+  100% {transform:translateX(400%);opacity:0}
+}
+
+/* 2. the torn edge breathes: a shadow that swells a few pixels, never the text */
+.tear path{animation:tearBreath 14s ease-in-out infinite}
+@keyframes tearBreath{
+  0%,100%{opacity:1}
+  50%    {opacity:.86}
+}
+.paper:after{animation:rakeBreath 18s ease-in-out infinite}
+@keyframes rakeBreath{
+  0%,100%{opacity:1}
+  50%    {opacity:.72}
+}
+
+/* 3. the rail emblem wakes only when the reader has stopped */
+@keyframes emberPulse{
+  0%,100%{text-shadow:0 0 0 rgba(201,164,92,0);opacity:.86}
+  50%    {text-shadow:0 0 12px rgba(201,164,92,.75),0 0 22px rgba(201,164,92,.32);opacity:1}
+}
+body.idle .rail-brand .mk{animation:emberPulse 4.6s ease-in-out infinite}
+
+/* 4. the shelf: a specular pass over each cover, staggered per card */
+.book .cover{isolation:isolate}
+.book .cover:before{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:linear-gradient(104deg,transparent 34%,rgba(255,246,220,.16) 48%,
+             rgba(255,255,255,.05) 54%,transparent 66%);
+  transform:translateX(-130%);
+  animation:sheen 13s cubic-bezier(.36,0,.4,1) infinite;
+  animation-delay:calc(var(--i,0) * 2.1s);
+}
+@keyframes sheen{
+  0%   {transform:translateX(-130%)}
+  18%  {transform:translateX(130%)}
+  100% {transform:translateX(130%)}
+}
+
+/* 5. a long chapter list: each number breathes on a staggered loop */
+.chap .n{animation:whisper 11s ease-in-out infinite;
+  animation-delay:calc(var(--i,0) * .28s)}
+@keyframes whisper{
+  0%,100%{color:var(--faint);text-shadow:none}
+  40%    {color:rgba(201,164,92,.85);text-shadow:0 0 9px rgba(201,164,92,.28)}
+  55%    {color:rgba(201,164,92,.85);text-shadow:0 0 9px rgba(201,164,92,.28)}
+}
+
+/* 6. idle nudge: after a long stillness, offer the way back */
+.idle-nudge{
+  position:fixed;left:50%;bottom:26px;z-index:60;
+  transform:translate(-50%,14px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:11px;
+  padding:11px 17px;border-radius:999px;
+  background:rgba(14,17,23,.93);border:1px solid rgba(201,164,92,.34);
+  box-shadow:0 14px 40px rgba(0,0,0,.6);
+  font-size:.82rem;color:var(--dim);white-space:nowrap;
+  transition:opacity .5s var(--ease),transform .5s var(--ease);
+  backdrop-filter:blur(9px);
+}
+.idle-nudge.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.idle-nudge .nd-pct{color:var(--gold);font-variant-numeric:tabular-nums}
+.idle-nudge button{
+  appearance:none;border:0;background:none;color:var(--faint);cursor:pointer;
+  font-size:1rem;line-height:1;padding:0 2px;
+}
+.idle-nudge button:hover{color:var(--ink)}
+
+/* ============================================================ motion switch */
+.motion-sw{
+  display:flex;gap:4px;padding:3px;border-radius:8px;
+  border:1px solid var(--line);background:rgba(0,0,0,.25);
+}
+.motion-sw button{
+  appearance:none;border:0;background:none;cursor:pointer;
+  font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);padding:4px 7px;border-radius:5px;
+  transition:color .15s,background-color .15s;
+}
+.motion-sw button:hover{color:var(--ink)}
+.motion-sw button.on{background:rgba(201,164,92,.18);color:var(--gold)}
+/* the second switch sits under the first, same language */
+.surface-sw{margin-top:6px}
+.motion-sw button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* everything above obeys these two switches */
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after{animation:none!important}
+html[data-motion="calm"] .win .aur,
+html[data-motion="calm"] .win .stars,
+html[data-motion="calm"] .win .stars2,
+html[data-motion="calm"] .chap .n,
+html[data-motion="calm"] .book .cover:before{animation:none!important}
+
+/* page entrance: fades the shell, never the body.
+   A transform on <body> would make every position:fixed child (rail, paper,
+   tear) scroll with the document — that is what broke the rail. */
+/* Page entry.
+   The old version animated opacity, blur(), translateY and scale on `.shell` -
+   which is the ENTIRE document, 1844 x 13709px once a chapter is open. Animating
+   opacity or a filter gives an element its own compositor layer, so this created
+   a ~25 megapixel layer on every chapter page and paid to composite it for as
+   long as the page stayed open. On integrated graphics (Intel UHD 620) that is
+   what "sluggish scrolling" feels like: the page scrolls fine in isolation and
+   badly once the layer exists.
+
+   A fade of the whole document was never the effect worth having. The content
+   fades in per-block instead (see .chead / .prose below), which touches small
+   elements that size themselves to the viewport, not the document. The shell
+   keeps only a cheap 6px lift, no opacity and no filter, so it never gets promoted. */
+/* The page no longer animates as a whole. `.shell` is the entire document -
+   1844 x 13709px on a chapter - and ANY animation on it (opacity, filter, or a
+   transform) makes Chrome promote it to its own compositor layer. That layer is
+   ~25 megapixels, and on integrated graphics (Intel UHD 620) compositing it while
+   the reader scrolls is what made scrolling feel heavy.
+
+   The entrance is now carried by the small blocks that size themselves to the
+   viewport: .chead (the chapter header) already fades with inkIn, and the rail
+   and hero each animate independently. Nothing spans the document. */
+@keyframes scanSweep{
+  0%   {transform:translateY(-120%); opacity:0;}
+  14%  {opacity:.5;}
+  100% {transform:translateY(2600%); opacity:0;}
+}
+
+.screen-sweep{
+  position:fixed;left:0;right:0;top:0;height:120px;z-index:90;pointer-events:none;
+  background:linear-gradient(180deg,transparent,
+    rgba(201,164,92,.05) 40%, rgba(232,201,135,.10) 50%, rgba(201,164,92,.05) 60%, transparent);
+  animation:scanSweep .85s var(--ease) .05s 1 both;
+  will-change:transform,opacity;
+}
+/* faint scanlines on dark chrome only — never over parchment text */
+.rail:after,.topbar:after,.toc:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(180deg,
+    rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+  opacity:.55;
+}
+.rail>*,.topbar>*,.toc>*{position:relative;z-index:1}
+
+/* rail items: light sweep */
+.ri{position:relative;overflow:hidden}
+.ri:before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,164,92,.16),transparent);
+  transform:translateX(-110%);transition:transform .5s var(--ease);
+  pointer-events:none;
+}
+.ri:hover:before{transform:translateX(110%)}
+.ri.on:after{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--gold);box-shadow:0 0 12px rgba(201,164,92,.75);
+  animation:edgePulse 2.6s ease-in-out infinite;
+}
+@keyframes edgePulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+.main li a{transition:color .15s ease;color:inherit}
+
+.btn,.book,.tool,.toc-tab,.bm-btn,.toc-row,figure.art{
+  transition:transform .18s var(--ease),border-color .18s ease,
+             background-color .18s ease,box-shadow .22s ease,color .15s ease;
+}
+.btn:active,.toc-tab:active,.bm-btn:active{transform:scale(.97)}
+.book:hover,.tool:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.book .cover img{transition:transform .5s var(--ease)}
+.book:hover .cover img{transform:scale(1.045)}
+
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.toc.open .toc-row{animation:rowIn .3s var(--ease-out) both;
+  animation-delay:calc(var(--i,0) * 5ms)}
+
+@keyframes inkIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+body.reading .reader .chead{animation:inkIn .6s var(--ease-out) both}
+
+figure.art:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+figure.art img{transition:transform .45s var(--ease),filter .3s ease}
+figure.art:hover img{transform:scale(1.04);filter:brightness(1.06)}
+
+@keyframes lbIn{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
+.lightbox img{animation:lbIn .26s var(--ease-out) both}
+
+@keyframes badgeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.badge{animation:badgeIn .3s var(--ease-out) both}
+
+.wl{
+  position:relative;border-bottom:0!important;
+  background-image:linear-gradient(90deg,rgba(201,164,92,.75),rgba(201,164,92,.75));
+  background-repeat:no-repeat;background-size:100% 1px;background-position:0 100%;
+  transition:background-size .22s var(--ease),color .15s;
+}
+.wl:hover{background-size:100% 2px;color:#fff}
+
+@keyframes bmPop{0%{transform:scale(1)}40%{transform:scale(1.18)}
+  70%{transform:scale(.96)}100%{transform:scale(1)}}
+.bm-btn.on .star{animation:bmPop .42s var(--ease)}
+
+.progbar{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:120;
+  background:linear-gradient(90deg,var(--gold),var(--gold-2));
+  box-shadow:0 0 10px rgba(201,164,92,.6);
+  /* scaleX, not width: width change relayouts the bar and anything sharing its
+     formatting context every frame; a transform is composited. */
+  transform:scaleX(0);transform-origin:0 50%;
+  transition:transform .08s linear;
+  will-change:transform;
+}
+
+.toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+  z-index:160;padding:11px 20px;border-radius:10px;
+  background:rgba(20,24,33,.96);border:1px solid rgba(201,164,92,.4);
+  color:var(--ink);font-size:.86rem;box-shadow:0 18px 44px rgba(0,0,0,.6);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease);
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast a{color:var(--gold-2);margin-left:10px}
+
+.endnav{position:fixed;bottom:20px;right:20px;z-index:110;display:none;gap:8px}
+.endnav a{
+  display:grid;place-items:center;width:46px;height:46px;border-radius:50%;
+  background:rgba(20,24,33,.94);border:1px solid var(--line);color:var(--gold-2);
+  box-shadow:0 8px 24px rgba(0,0,0,.5);transition:all .18s;
+}
+.endnav a:hover{border-color:var(--gold);transform:translateY(-2px)}
+@media(max-width:900px){ body.reading .endnav{display:flex} }
+
+/* ============================================================ contents panel
+   Slides in beside the reading column instead of replacing the page. */
+.toc{
+  position:fixed;top:0;bottom:0;left:66px;width:330px;z-index:40;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#101319,#0b0d12);
+  border-right:1px solid var(--line);
+  box-shadow:18px 0 50px rgba(0,0,0,.55);
+  transform:translateX(-104%);
+  transition:transform .26s cubic-bezier(.4,0,.2,1),left .22s cubic-bezier(.4,0,.2,1);
+}
+body.rail-open .toc{left:238px}
+.toc.open{transform:translateX(0)}
+@media(max-width:900px){
+  .toc{left:0}
+  body.rail-open .toc{left:0}
+}
+.toc-hd{
+  display:flex;align-items:center;gap:10px;height:58px;padding:0 16px;
+  border-bottom:1px solid var(--line);flex:none;
+}
+.toc-title{
+  font-family:var(--serif);font-size:.98rem;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.toc-x{
+  margin-left:auto;background:transparent;border:0;color:var(--faint);
+  font-size:1.35rem;line-height:1;cursor:pointer;padding:2px 6px;border-radius:5px;
+}
+.toc-x:hover{color:var(--gold-2);background:rgba(255,255,255,.05)}
+.toc-tools{display:flex;gap:4px;padding:10px 12px;flex:none;border-bottom:1px solid var(--line-soft)}
+.toc-tab{
+  flex:1;font:inherit;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;
+  background:transparent;border:1px solid transparent;border-radius:6px;
+  color:var(--faint);padding:6px 8px;cursor:pointer;
+}
+.toc-tab:hover{color:var(--ink)}
+.toc-tab.on{color:var(--gold-2);border-color:rgba(201,164,92,.4);background:rgba(201,164,92,.1)}
+/* the contents panel owns its own scrolling and must never chain to the page */
+.toc{overscroll-behavior:contain}
+.toc-list{
+  overflow-y:auto;flex:1;padding:8px 0;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  min-height:0;
+}
+.toc-list::-webkit-scrollbar{width:8px}
+.toc-list::-webkit-scrollbar-thumb{background:#2b3342;border-radius:6px}
+.toc-list::-webkit-scrollbar-thumb:hover{background:#3a4456}
+.toc-list::-webkit-scrollbar-track{background:transparent}
+.toc-row{
+  display:grid;grid-template-columns:30px 1fr auto;gap:9px;align-items:baseline;
+  padding:8px 14px;border-left:2px solid transparent;font-size:.85rem;color:var(--dim);
+}
+/* [hidden] must beat display:grid, or the Bookmarks tab shows every chapter */
+.toc-row[hidden]{display:none!important}
+/* bookmark mode: number · title · words · remove  */
+#tocList.bm-mode .toc-row{
+  grid-template-columns:30px 1fr auto 20px;
+  align-items:center;              /* controls centre against a wrapped title */
+}
+#tocList.bm-mode .toc-n{align-self:start;padding-top:2px}
+#tocList.bm-mode .toc-w{align-self:start;padding-top:3px}
+.toc-bx{
+  appearance:none;border:0;background:none;cursor:pointer;
+  color:var(--faint);font-size:1rem;line-height:1;padding:0 2px;
+  opacity:.5;transition:opacity .15s,color .15s;align-self:center;
+}
+.toc-row:hover .toc-bx{opacity:1}
+.toc-bx:hover{color:#e2707a;opacity:1}
+/* a bookmarked row reads as saved even in the All tab */
+.toc-row.bm{background:rgba(201,164,92,.055)}
+.toc-row:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+.toc-row.bm:hover{background:rgba(201,164,92,.10)}
+.toc-n{font-family:var(--mono);font-size:.72rem;color:var(--faint);text-align:right}
+.toc-t{line-height:1.35}
+.toc-w{font-size:.68rem;color:var(--faint);font-variant-numeric:tabular-nums}
+.toc-row.cur{
+  color:var(--gold-2);border-left-color:var(--gold);
+  background:linear-gradient(90deg,rgba(201,164,92,.14),transparent);
+}
+.toc-row.cur .toc-n{color:var(--gold)}
+.toc-row.cur .toc-t{font-weight:600}
+.toc-row.bm .toc-n:after{content:" \2605";color:var(--gold)}
+.toc-empty{padding:16px;font-size:.8rem;color:var(--faint);display:none}
+.toc-list.empty+.toc-empty{display:block}
+
+/* the contents toggle sits in the rail */
+.ri.act{cursor:pointer}
+
+/* bookmark star in the reader header */
+.bm-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  margin-top:16px;padding:6px 14px;border-radius:20px;cursor:pointer;
+  font:inherit;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;
+  background:transparent;border:1px solid rgba(120,98,60,.45);
+  color:#7d6a45;transition:all .15s;
+}
+.bm-btn:hover{border-color:#a8823f;color:#8a6a2c;background:rgba(201,164,92,.09)}
+.bm-btn.on{border-color:#a8823f;color:#8a5a1e;background:rgba(201,164,92,.15)}
+.bm-btn .star{font-size:.95rem;line-height:1}
+
+@media(max-width:900px){
+  .toc{left:0!important;width:min(330px,88vw)}
+}
+
+/* when the contents panel is open, shift the reading column instead of covering it */
+body.reading.toc-open .paper{left:calc(66px + 330px)}
+body.reading.toc-open .tear{left:calc(66px + 330px)}
+body.reading.toc-open.rail-open .paper{left:calc(238px + 330px)}
+body.reading.toc-open.rail-open .tear{left:calc(238px + 330px)}
+/* the shell must follow the paper, or the text centres on the wrong box */
+body.reading.toc-open .shell{margin-left:calc(66px + 330px)}
+body.reading.toc-open.rail-open .shell{margin-left:calc(238px + 330px)}
+@media(max-width:900px){
+  body.reading.toc-open .paper,
+  body.reading.toc-open.rail-open .paper{left:0}
+  body.reading.toc-open .tear{display:none}
+  body.reading.toc-open .shell,
+  body.reading.toc-open.rail-open .shell{margin-left:0}
+}
+.lib{display:grid;grid-template-columns:246px minmax(0,1fr);gap:46px;padding:44px 0 80px;align-items:start}
+@media(max-width:900px){
+  /* minmax(0,1fr): a bare 1fr has an `auto` minimum, so long unbreakable
+     words force the column past the viewport and the whole page scrolls sideways */
+  .lib{grid-template-columns:minmax(0,1fr);gap:0;padding-top:26px}
+  .lib main{order:-1;min-width:0}
+  .side{
+    position:static;max-height:none;order:0;min-width:0;
+    border-top:1px solid var(--line);margin-top:44px;padding-top:8px;
+  }
+  .side h4{margin-top:18px}
+}
+
+/* rail on narrow screens becomes a drawer */
+@media(max-width:900px){
+  .rail{width:0;box-shadow:none}
+  .rail.open{width:238px}
+  .shell{margin-left:0}
+  .rail-toggle{display:block}
+}
+
+.side{position:sticky;top:80px;max-height:calc(100vh - 108px);overflow-y:auto;padding-right:8px}
+.side .bookswitch{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.side .bookswitch a{
+  font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 11px;border-radius:6px;border:1px solid var(--line);color:var(--dim);
+}
+.side .bookswitch a.on{border-color:var(--gold);color:var(--gold-2);background:var(--gold-dim)}
+.side h4{
+  font-size:.7rem;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);
+  margin:24px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--line-soft);
+}
+.side h4:first-of-type{margin-top:0}
+.side a.it{
+  display:block;padding:5px 0 5px 11px;font-size:.865rem;color:var(--dim);
+  border-left:2px solid transparent;line-height:1.4;
+}
+.side a.it:hover{color:var(--ink);border-left-color:var(--line)}
+.side a.it.on{color:var(--gold-2);border-left-color:var(--gold);background:linear-gradient(90deg,var(--gold-dim),transparent)}
+.side .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--faint);margin-right:7px;vertical-align:middle}
+.side .dot.canon{background:var(--gold)}
+.side .dot.proposed{background:var(--blue)}
+
+.doc{max-width:var(--measure);font-size:.99rem}
+.doc .crumb{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.doc h1{font-family:var(--serif);font-weight:400;font-size:2.15rem;line-height:1.16;margin:0 0 6px}
+.doc .meta-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 30px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.doc h2{font-family:var(--serif);font-weight:400;font-size:1.46rem;margin:2.1em 0 .55em;line-height:1.3;scroll-margin-top:80px}
+.doc h3{font-size:1.06rem;margin:1.75em 0 .45em;color:var(--gold-2);font-weight:600;scroll-margin-top:80px}
+.doc h4{font-size:.83rem;margin:1.5em 0 .4em;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.doc p{margin:0 0 1.05em;color:var(--ink-2)}
+.doc ul,.doc ol{margin:0 0 1.1em;padding-left:1.4em;color:var(--ink-2)}
+.doc li{margin-bottom:.38em}
+.doc li>ul,.doc li>ol{margin-top:.38em;margin-bottom:.2em}
+.doc strong{color:#fff;font-weight:600}
+.doc em{color:var(--gold-2);font-style:italic}
+.doc blockquote{
+  margin:1.5em 0;padding:14px 20px;background:var(--panel);
+  border-left:2px solid var(--gold);border-radius:0 8px 8px 0;
+  color:var(--dim);font-style:italic;font-family:var(--serif);font-size:1.02em;
+}
+.doc blockquote p:last-child{margin-bottom:0}
+.doc code{font-family:var(--mono);font-size:.855em;background:#1b2130;padding:2px 6px;border-radius:4px;color:var(--gold-2)}
+.doc pre{
+  background:#0e1219;border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 1.3em;
+}
+.doc pre code{background:none;padding:0;color:#b9c2d4;font-size:.82em;line-height:1.65}
+.doc pre.diagram{
+  background:linear-gradient(180deg,#0e1219,#0c1016);border-color:#252d3c;
+  font-size:.8rem;line-height:1.55;
+}
+.doc pre.diagram code{color:var(--gold-2);opacity:.92}
+.doc hr{border:0;border-top:1px solid var(--line);margin:2.3em 0}
+.doc img.embed{border-radius:10px;border:1px solid var(--line);margin:1.4em 0;cursor:zoom-in}
+.doc .task{color:var(--gold);font-weight:600;margin-right:2px}
+
+.tw{overflow-x:auto;margin:0 0 1.4em;border:1px solid var(--line);border-radius:10px}
+.doc table{border-collapse:collapse;width:100%;font-size:.885rem;min-width:420px}
+.doc th,.doc td{border-bottom:1px solid var(--line-soft);padding:9px 13px;text-align:left;vertical-align:top}
+.doc th{
+  background:var(--panel);color:var(--gold-2);font-weight:600;font-size:.76rem;
+  letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
+  border-bottom:1px solid var(--line);
+}
+.doc tr:last-child td{border-bottom:0}
+.doc tbody tr:hover{background:rgba(255,255,255,.017)}
+.doc td{color:var(--ink-2)}
+
+.wl{border-bottom:1px dotted rgba(201,164,92,.5)}
+.wl-off{color:var(--faint);border-bottom:1px dotted var(--faint);cursor:help}
+/* glossary links in chapter prose — visible but not intrusive */
+.gl{
+  color:#6b4423;
+  border-bottom:1px dotted rgba(138,47,40,.55);
+  text-decoration:none;
+  transition:background-color .2s,border-color .2s,color .2s;
+}
+.gl:hover{background:rgba(176,138,69,.20);border-bottom-color:#8a2f28;color:#41200f}
+/* lore -> prose: which chapters mention this */
+.appears{
+  margin:2.6em 0 0;padding:18px 20px;border:1px solid var(--line);
+  border-radius:10px;background:var(--panel);
+}
+.appears-h{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;
+}
+.chchips{display:flex;flex-wrap:wrap;gap:6px}
+.chchip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:30px;padding:0 9px;
+  font-family:var(--mono);font-size:.78rem;
+  color:var(--fg);background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);border-radius:6px;
+  text-decoration:none;transition:all .18s var(--ease);
+}
+.chchip:hover{
+  color:#0a0c11;background:var(--gold);border-color:var(--gold);
+  transform:translateY(-1px);box-shadow:0 4px 12px rgba(201,164,92,.28);
+}
+.appears-n{margin-top:12px;font-size:.78rem;color:var(--faint);font-style:italic}
+
+.badge{
+  display:inline-block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;border:1px solid var(--line);color:var(--faint);
+  white-space:nowrap;
+}
+.badge.canon{border-color:rgba(201,164,92,.5);color:var(--gold)}
+.badge.proposed{border-color:rgba(127,159,191,.45);color:var(--blue)}
+.badge.decided{border-color:rgba(107,158,120,.45);color:var(--green)}
+.badge.open{border-color:rgba(168,71,63,.45);color:#c26a62}
+
+/* doc index table */
+.idx{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:6px}
+.idx th{
+  text-align:left;font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);font-weight:600;padding:0 12px 10px 0;border-bottom:1px solid var(--line);
+}
+.idx td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.idx tr:hover td{background:rgba(255,255,255,.017)}
+.idx .ttl{font-family:var(--serif);font-size:1rem;color:var(--ink)}
+.idx tr:hover .ttl{color:var(--gold-2)}
+.idx .sec{font-size:.78rem;color:var(--faint);white-space:nowrap}
+.idx .wc{font-size:.76rem;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* narrow screens: hide the two least-important columns so the table fits */
+@media(max-width:620px){
+  .idx{font-size:.85rem}
+  .idx th:nth-child(3), .idx td:nth-child(3),
+  .idx th:nth-child(4), .idx td:nth-child(4){display:none}
+  .idx td{padding:10px 8px 10px 0}
+}
+@media(max-width:420px){
+  .idx th:nth-child(2), .idx td:nth-child(2),
+  .idx th:nth-child(5), .idx td:nth-child(5){display:none}
+}
+
+/* ============================================================ gallery */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:16px;padding:36px 0 70px}
+figure.art{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);transition:border-color .18s}
+figure.art:hover{border-color:rgba(201,164,92,.42)}
+figure.art img{width:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in;transition:transform .35s}
+figure.art:hover img{transform:scale(1.035)}
+figure.art figcaption{padding:11px 14px;font-size:.8rem;color:var(--dim);border-top:1px solid var(--line-soft)}
+.lightbox{position:fixed;inset:0;background:rgba(5,6,9,.96);z-index:200;display:none;place-items:center;padding:30px;cursor:zoom-out}
+.lightbox.on{display:grid}
+.lightbox img{max-width:94vw;max-height:92vh;object-fit:contain;border-radius:6px}
+
+.mapbox{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#070a0f;margin:26px 0}
+.mapbox img{width:100%}
+.mapcap{padding:10px 16px;font-size:.8rem;color:var(--dim);border-top:1px solid var(--line-soft)}
+
+/* ============================================================ workspace */
+.gate{max-width:390px;margin:80px auto;text-align:center}
+.gate h1{font-family:var(--serif);font-weight:400;font-size:2rem;margin:0 0 10px}
+.gate p{color:var(--dim);font-size:.93rem;margin:0 0 6px}
+.gate form{margin-top:24px}
+.gate input{
+  width:100%;padding:13px 15px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;outline:none;text-align:center;
+}
+.gate input:focus{border-color:rgba(201,164,92,.6)}
+.gate button{width:100%;margin-top:11px}
+.gate .err{color:#c26a62;font-size:.85rem;margin-top:11px}
+.gate .hint{font-size:.78rem;color:var(--faint);margin-top:26px;line-height:1.65}
+
+.tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:26px 0 40px}
+@media(min-width:1100px){.tools{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:620px){.tools{grid-template-columns:1fr}}
+.tool{border:1px solid var(--line);border-radius:11px;padding:16px 18px;background:var(--panel);transition:border-color .15s}
+.tool:hover{border-color:rgba(201,164,92,.4)}
+.tool .tt{font-family:var(--serif);font-size:1.05rem;margin-bottom:5px}
+.tool .td{font-size:.82rem;color:var(--faint);line-height:1.55}
+
+/* ============================================================ footer */
+footer{border-top:1px solid var(--line);padding:40px 0 56px;margin-top:40px;font-size:.82rem;color:var(--faint)}
+footer .wrap{display:flex;gap:22px;flex-wrap:wrap;align-items:baseline}
+footer a{color:var(--dim)}
+/* Discord invite — sits in the footer of every page, gold on hover only so it
+   never competes with the book chrome. */
+.foot-discord{
+  display:inline-flex;align-items:center;gap:7px;
+  color:var(--gold);opacity:.82;text-decoration:none;
+  letter-spacing:.02em;transition:opacity .18s,color .18s;
+}
+.foot-discord .ic{font-size:.72em;opacity:.75;transition:transform .22s var(--ease)}
+.foot-discord:hover{opacity:1;color:var(--gold-2)}
+.foot-discord:hover .ic{transform:rotate(90deg)}
+.foot-discord:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
+
+/* ============================================================ mobile */
+@media(max-width:1080px){
+  .top nav.main{gap:16px;font-size:.74rem}
+  .search{flex:0 1 180px}
+}
+@media(max-width:900px){
+  .top nav.main{display:none}
+  .search{flex:1 1 auto;max-width:none}
+}
+@media(max-width:720px){
+  .hero{padding:60px 0 44px}
+  .prose p:first-of-type:first-letter{font-size:2.7em}
+  .side{position:static;max-height:none}
+  .lib{padding-top:26px}
+  .chap{grid-template-columns:40px 1fr}
+  .chap .w{display:none}
+  .books{padding:36px 0}
+  .brand{font-size:.94rem}
+}
+@media print{
+  .top,footer,.side,.pager{display:none}
+  body{background:#fff;color:#000}
+  .prose{color:#000}
+}
+
+/* the living window is a fixed layer behind the page; the body must not mask it */
+body:not(.reading){background:transparent}
+body:not(.reading) .topbar{background:rgba(11,13,18,.72);backdrop-filter:blur(10px)}
+
+/* ============================================================ living window */
+.win{
+  position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 18% 8%, #2b3a5244 0%, transparent 55%),
+    radial-gradient(100% 80% at 84% 92%, #7a5a2a33 0%, transparent 58%),
+    linear-gradient(170deg,#07090d 0%,#0a0d13 52%,#070a0f 100%);
+}
+/* three soft light masses that drift on long, co-prime cycles */
+.win .aur{
+  position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform;
+}
+.win .aur.a{
+  width:56vw;height:56vw;left:-14vw;top:-18vw;
+  background:radial-gradient(circle at 42% 42%, #c9a45c38, #c9a45c0d 46%, transparent 68%);
+  animation:aurA 41s ease-in-out infinite;
+}
+.win .aur.b{
+  width:48vw;height:48vw;right:-12vw;bottom:-16vw;
+  background:radial-gradient(circle at 55% 55%, #7a5a2a3a, #7a5a2a0b 48%, transparent 70%);
+  animation:aurB 53s ease-in-out infinite;
+}
+.win .aur.c{
+  width:38vw;height:38vw;left:34vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, #2b3a5230, #2b3a5208 50%, transparent 72%);
+  animation:aurC 67s ease-in-out infinite;
+}
+/* starfield: one dot + a long box-shadow list, drifting very slowly */
+.win .stars,.win .stars2{
+  position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;
+  background:transparent;
+}
+.win .stars{box-shadow:374px 531px 0 0.0px rgba(255,255,255,0.28),91px 94px 0 0.0px rgba(255,255,255,0.34),57px 1087px 0 0.0px rgba(255,255,255,0.32),185px 257px 0 0.0px rgba(255,255,255,0.2),1455px 573px 0 0.3px rgba(255,255,255,0.17),968px 130px 0 -0.1px rgba(255,255,255,0.29),139px 934px 0 -0.3px rgba(255,255,255,0.33),381px 639px 0 -0.1px rgba(255,255,255,0.38),78px 386px 0 -0.3px rgba(255,255,255,0.34),1363px 559px 0 0.3px rgba(255,255,255,0.33),74px 613px 0 -0.1px rgba(255,255,255,0.29),528px 941px 0 0.3px rgba(255,255,255,0.22),1136px 34px 0 -0.3px rgba(255,255,255,0.27),755px 370px 0 0.3px rgba(255,255,255,0.38),622px 370px 0 0.3px rgba(255,255,255,0.38),134px 305px 0 0.0px rgba(255,255,255,0.23),1698px 1078px 0 0.0px rgba(255,255,255,0.46),375px 417px 0 -0.3px rgba(255,255,255,0.14),137px 299px 0 -0.1px rgba(255,255,255,0.37),1362px 100px 0 0.0px rgba(255,255,255,0.36),271px 793px 0 -0.3px rgba(255,255,255,0.16),200px 149px 0 -0.1px rgba(255,255,255,0.33),1157px 1024px 0 -0.1px rgba(255,255,255,0.16),668px 676px 0 0.0px rgba(255,255,255,0.49),1613px 579px 0 0.0px rgba(255,255,255,0.4),19px 692px 0 0.0px rgba(255,255,255,0.39),458px 884px 0 0.0px rgba(255,255,255,0.28),275px 295px 0 -0.1px rgba(255,255,255,0.22),721px 621px 0 -0.1px rgba(255,255,255,0.44),1156px 152px 0 0.0px rgba(255,255,255,0.38),24px 695px 0 0.3px rgba(255,255,255,0.19),370px 737px 0 -0.1px rgba(255,255,255,0.13),1739px 394px 0 0.3px rgba(255,255,255,0.3),1594px 889px 0 -0.1px rgba(255,255,255,0.28),1346px 485px 0 -0.3px rgba(255,255,255,0.2),1562px 261px 0 0.0px rgba(255,255,255,0.3),226px 349px 0 0.0px rgba(255,255,255,0.33),565px 726px 0 -0.3px rgba(255,255,255,0.3),354px 1023px 0 -0.3px rgba(255,255,255,0.16),1067px 154px 0 0.0px rgba(255,255,255,0.37),1576px 434px 0 0.3px rgba(255,255,255,0.23),645px 698px 0 -0.3px rgba(255,255,255,0.43),445px 851px 0 -0.3px rgba(255,255,255,0.15),26px 122px 0 -0.1px rgba(255,255,255,0.18),408px 690px 0 -0.3px rgba(255,255,255,0.16),508px 929px 0 0.0px rgba(255,255,255,0.41);animation:drift 180s linear infinite}
+.win .stars2{box-shadow:379px 849px 0 -0.1px rgba(255,255,255,0.31),88px 246px 0 -0.3px rgba(255,255,255,0.23),1437px 135px 0 -0.1px rgba(255,255,255,0.31),838px 115px 0 -0.1px rgba(255,255,255,0.3),408px 670px 0 0.0px rgba(255,255,255,0.34),1117px 770px 0 -0.3px rgba(255,255,255,0.33),1233px 937px 0 -0.3px rgba(255,255,255,0.35),1502px 494px 0 -0.3px rgba(255,255,255,0.32),1599px 683px 0 -0.3px rgba(255,255,255,0.13),536px 481px 0 -0.3px rgba(255,255,255,0.13),541px 403px 0 0.0px rgba(255,255,255,0.28),333px 975px 0 -0.1px rgba(255,255,255,0.23),510px 761px 0 0.3px rgba(255,255,255,0.2),1265px 223px 0 0.3px rgba(255,255,255,0.23),1521px 225px 0 -0.3px rgba(255,255,255,0.17),844px 520px 0 -0.3px rgba(255,255,255,0.15),1733px 209px 0 0.0px rgba(255,255,255,0.25),757px 839px 0 -0.1px rgba(255,255,255,0.15),504px 507px 0 -0.3px rgba(255,255,255,0.3),720px 920px 0 0.0px rgba(255,255,255,0.15),112px 1100px 0 0.3px rgba(255,255,255,0.19),716px 863px 0 0.3px rgba(255,255,255,0.16),1467px 262px 0 -0.3px rgba(255,255,255,0.16),276px 1053px 0 -0.1px rgba(255,255,255,0.18),1371px 933px 0 -0.3px rgba(255,255,255,0.19),1174px 753px 0 0.0px rgba(255,255,255,0.25),1725px 621px 0 -0.1px rgba(255,255,255,0.13),1586px 463px 0 -0.3px rgba(255,255,255,0.38),463px 302px 0 -0.1px rgba(255,255,255,0.14),120px 762px 0 0.0px rgba(255,255,255,0.23),855px 408px 0 -0.1px rgba(255,255,255,0.38),485px 983px 0 -0.1px rgba(255,255,255,0.15),1241px 818px 0 0.0px rgba(255,255,255,0.16),1165px 248px 0 0.0px rgba(255,255,255,0.24);animation:drift 260s linear infinite reverse;opacity:.7}
+/* film grain so the light does not band on cheap panels */
+.win:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.42'/></svg>");
+}
+
+/* ============================================================ living window */
+
+/* three soft light masses that drift on long, co-prime cycles */
+.win[data-wk="chronicles"] .aur{
+  position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform;
+}
+.win[data-wk="chronicles"] .aur.a{
+  width:56vw;height:56vw;left:-14vw;top:-18vw;
+  background:radial-gradient(circle at 42% 42%, #c8a35a38, #c8a35a0d 46%, transparent 68%);
+  animation:aurA 41s ease-in-out infinite;
+}
+.win[data-wk="chronicles"] .aur.b{
+  width:48vw;height:48vw;right:-12vw;bottom:-16vw;
+  background:radial-gradient(circle at 55% 55%, #6f52223a, #6f52220b 48%, transparent 70%);
+  animation:aurB 53s ease-in-out infinite;
+}
+.win[data-wk="chronicles"] .aur.c{
+  width:38vw;height:38vw;left:34vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, #24324730, #24324708 50%, transparent 72%);
+  animation:aurC 67s ease-in-out infinite;
+}
+/* starfield: one dot + a long box-shadow list, drifting very slowly */
+.win[data-wk="chronicles"] .stars,.win[data-wk="chronicles"] .stars2{
+  position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;
+  background:transparent;
+}
+.win[data-wk="chronicles"] .stars{box-shadow:1434px 845px 0 -0.1px rgba(255,255,255,0.45),1094px 678px 0 0.0px rgba(255,255,255,0.49),677px 957px 0 0.0px rgba(255,255,255,0.23),140px 980px 0 0.3px rgba(255,255,255,0.21),1550px 1004px 0 -0.1px rgba(255,255,255,0.12),787px 479px 0 -0.3px rgba(255,255,255,0.39),732px 265px 0 -0.3px rgba(255,255,255,0.35),676px 450px 0 -0.3px rgba(255,255,255,0.24),399px 916px 0 0.3px rgba(255,255,255,0.27),385px 229px 0 -0.1px rgba(255,255,255,0.24),15px 259px 0 -0.1px rgba(255,255,255,0.42),257px 618px 0 -0.3px rgba(255,255,255,0.45),1130px 59px 0 -0.3px rgba(255,255,255,0.17),572px 1090px 0 0.0px rgba(255,255,255,0.48),1597px 688px 0 -0.1px rgba(255,255,255,0.19),509px 424px 0 0.0px rgba(255,255,255,0.23),260px 686px 0 -0.3px rgba(255,255,255,0.25),797px 176px 0 0.0px rgba(255,255,255,0.32),1135px 587px 0 -0.3px rgba(255,255,255,0.17),1181px 204px 0 -0.1px rgba(255,255,255,0.3),1190px 1026px 0 -0.3px rgba(255,255,255,0.28),1453px 87px 0 0.0px rgba(255,255,255,0.12),371px 107px 0 -0.3px rgba(255,255,255,0.18),753px 547px 0 0.0px rgba(255,255,255,0.17),834px 173px 0 0.0px rgba(255,255,255,0.24),1150px 456px 0 -0.3px rgba(255,255,255,0.31),109px 486px 0 0.3px rgba(255,255,255,0.23),1511px 750px 0 -0.1px rgba(255,255,255,0.15),808px 586px 0 0.3px rgba(255,255,255,0.39),420px 1069px 0 -0.1px rgba(255,255,255,0.49),1669px 100px 0 -0.3px rgba(255,255,255,0.4),1659px 626px 0 -0.1px rgba(255,255,255,0.15),371px 1057px 0 -0.3px rgba(255,255,255,0.3),1521px 613px 0 -0.3px rgba(255,255,255,0.38),1366px 318px 0 -0.3px rgba(255,255,255,0.23),147px 940px 0 0.3px rgba(255,255,255,0.31),600px 891px 0 0.0px rgba(255,255,255,0.28),1070px 627px 0 0.0px rgba(255,255,255,0.18),4px 542px 0 -0.3px rgba(255,255,255,0.24),1281px 304px 0 -0.1px rgba(255,255,255,0.14),408px 220px 0 -0.1px rgba(255,255,255,0.24),1208px 924px 0 0.3px rgba(255,255,255,0.38),152px 22px 0 0.0px rgba(255,255,255,0.5),403px 434px 0 -0.3px rgba(255,255,255,0.19),1222px 107px 0 0.3px rgba(255,255,255,0.44),1002px 65px 0 0.3px rgba(255,255,255,0.29);animation:drift 180s linear infinite}
+.win[data-wk="chronicles"] .stars2{box-shadow:1137px 33px 0 -0.3px rgba(255,255,255,0.2),767px 832px 0 -0.1px rgba(255,255,255,0.19),660px 163px 0 0.3px rgba(255,255,255,0.18),971px 682px 0 -0.3px rgba(255,255,255,0.13),999px 352px 0 0.0px rgba(255,255,255,0.15),61px 652px 0 -0.3px rgba(255,255,255,0.29),108px 24px 0 -0.3px rgba(255,255,255,0.21),1540px 779px 0 0.3px rgba(255,255,255,0.29),490px 839px 0 -0.3px rgba(255,255,255,0.33),1234px 927px 0 -0.3px rgba(255,255,255,0.32),1076px 50px 0 0.0px rgba(255,255,255,0.18),959px 87px 0 -0.1px rgba(255,255,255,0.25),906px 1098px 0 -0.3px rgba(255,255,255,0.14),725px 68px 0 -0.1px rgba(255,255,255,0.16),866px 845px 0 -0.1px rgba(255,255,255,0.29),1036px 159px 0 0.3px rgba(255,255,255,0.31),122px 224px 0 -0.3px rgba(255,255,255,0.2),1657px 1041px 0 -0.3px rgba(255,255,255,0.36),1409px 207px 0 -0.3px rgba(255,255,255,0.33),606px 775px 0 -0.1px rgba(255,255,255,0.37),1163px 642px 0 0.0px rgba(255,255,255,0.18),620px 628px 0 0.0px rgba(255,255,255,0.36),465px 251px 0 -0.1px rgba(255,255,255,0.14),610px 16px 0 -0.1px rgba(255,255,255,0.34),232px 660px 0 0.3px rgba(255,255,255,0.27),450px 72px 0 0.0px rgba(255,255,255,0.37),1701px 359px 0 0.3px rgba(255,255,255,0.19),1404px 259px 0 0.3px rgba(255,255,255,0.21),584px 176px 0 -0.3px rgba(255,255,255,0.34),1799px 608px 0 -0.1px rgba(255,255,255,0.33),1676px 1028px 0 -0.3px rgba(255,255,255,0.37),468px 127px 0 -0.1px rgba(255,255,255,0.33),1622px 187px 0 0.0px rgba(255,255,255,0.2),1086px 51px 0 0.3px rgba(255,255,255,0.12);animation:drift 260s linear infinite reverse;opacity:.7}
+/* film grain so the light does not band on cheap panels */
+.win[data-wk="chronicles"]:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.42'/></svg>");
+}
+
+/* ============================================================ living window */
+
+/* three soft light masses that drift on long, co-prime cycles */
+.win[data-wk="atth"] .aur{
+  position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform;
+}
+.win[data-wk="atth"] .aur.a{
+  width:56vw;height:56vw;left:-14vw;top:-18vw;
+  background:radial-gradient(circle at 42% 42%, #7f9fbf38, #7f9fbf0d 46%, transparent 68%);
+  animation:aurA 41s ease-in-out infinite;
+}
+.win[data-wk="atth"] .aur.b{
+  width:48vw;height:48vw;right:-12vw;bottom:-16vw;
+  background:radial-gradient(circle at 55% 55%, #3d5a7a3a, #3d5a7a0b 48%, transparent 70%);
+  animation:aurB 53s ease-in-out infinite;
+}
+.win[data-wk="atth"] .aur.c{
+  width:38vw;height:38vw;left:34vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, #1b263730, #1b263708 50%, transparent 72%);
+  animation:aurC 67s ease-in-out infinite;
+}
+/* starfield: one dot + a long box-shadow list, drifting very slowly */
+.win[data-wk="atth"] .stars,.win[data-wk="atth"] .stars2{
+  position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;
+  background:transparent;
+}
+.win[data-wk="atth"] .stars{box-shadow:266px 785px 0 -0.3px rgba(255,255,255,0.28),203px 411px 0 0.0px rgba(255,255,255,0.4),1424px 549px 0 0.0px rgba(255,255,255,0.19),252px 1090px 0 -0.1px rgba(255,255,255,0.32),29px 815px 0 0.3px rgba(255,255,255,0.16),322px 495px 0 0.3px rgba(255,255,255,0.32),147px 44px 0 -0.1px rgba(255,255,255,0.24),556px 892px 0 -0.3px rgba(255,255,255,0.42),345px 1004px 0 0.3px rgba(255,255,255,0.23),421px 15px 0 0.3px rgba(255,255,255,0.21),1059px 857px 0 0.3px rgba(255,255,255,0.28),1694px 446px 0 0.0px rgba(255,255,255,0.15),1380px 412px 0 0.3px rgba(255,255,255,0.32),979px 314px 0 0.3px rgba(255,255,255,0.35),399px 306px 0 -0.1px rgba(255,255,255,0.22),505px 881px 0 -0.3px rgba(255,255,255,0.28),1715px 774px 0 0.0px rgba(255,255,255,0.2),1677px 911px 0 -0.3px rgba(255,255,255,0.39),1531px 72px 0 0.0px rgba(255,255,255,0.23),1507px 1047px 0 -0.3px rgba(255,255,255,0.18),729px 621px 0 0.3px rgba(255,255,255,0.41),1736px 845px 0 -0.3px rgba(255,255,255,0.31),475px 1019px 0 -0.3px rgba(255,255,255,0.12),1641px 444px 0 -0.1px rgba(255,255,255,0.23),1136px 445px 0 0.0px rgba(255,255,255,0.21),495px 85px 0 -0.3px rgba(255,255,255,0.31),1581px 110px 0 0.3px rgba(255,255,255,0.41),1570px 461px 0 -0.3px rgba(255,255,255,0.28),1165px 660px 0 0.0px rgba(255,255,255,0.37),1647px 913px 0 0.3px rgba(255,255,255,0.47),596px 322px 0 0.0px rgba(255,255,255,0.37),646px 885px 0 -0.3px rgba(255,255,255,0.25),1734px 517px 0 -0.1px rgba(255,255,255,0.26),1449px 169px 0 0.3px rgba(255,255,255,0.15),776px 50px 0 -0.1px rgba(255,255,255,0.21),902px 328px 0 0.3px rgba(255,255,255,0.28),649px 75px 0 0.3px rgba(255,255,255,0.31),1414px 872px 0 -0.1px rgba(255,255,255,0.35),1730px 1006px 0 0.0px rgba(255,255,255,0.42),1416px 915px 0 0.0px rgba(255,255,255,0.45),271px 906px 0 -0.1px rgba(255,255,255,0.39),1042px 485px 0 0.3px rgba(255,255,255,0.2),905px 816px 0 -0.1px rgba(255,255,255,0.47),627px 87px 0 0.3px rgba(255,255,255,0.5),472px 890px 0 -0.1px rgba(255,255,255,0.26),1624px 751px 0 -0.3px rgba(255,255,255,0.21);animation:drift 180s linear infinite}
+.win[data-wk="atth"] .stars2{box-shadow:1303px 286px 0 -0.1px rgba(255,255,255,0.27),1787px 551px 0 0.0px rgba(255,255,255,0.15),65px 1052px 0 -0.3px rgba(255,255,255,0.32),1036px 51px 0 -0.3px rgba(255,255,255,0.35),1197px 76px 0 -0.3px rgba(255,255,255,0.22),733px 1093px 0 -0.1px rgba(255,255,255,0.37),299px 319px 0 -0.1px rgba(255,255,255,0.24),1561px 769px 0 -0.3px rgba(255,255,255,0.33),6px 150px 0 0.3px rgba(255,255,255,0.28),25px 914px 0 -0.1px rgba(255,255,255,0.31),1061px 113px 0 -0.3px rgba(255,255,255,0.34),210px 423px 0 0.0px rgba(255,255,255,0.13),651px 1042px 0 -0.1px rgba(255,255,255,0.2),1466px 644px 0 0.3px rgba(255,255,255,0.31),917px 186px 0 -0.1px rgba(255,255,255,0.19),936px 1010px 0 0.3px rgba(255,255,255,0.19),19px 1017px 0 -0.3px rgba(255,255,255,0.29),600px 554px 0 0.0px rgba(255,255,255,0.28),930px 110px 0 -0.3px rgba(255,255,255,0.27),191px 699px 0 0.3px rgba(255,255,255,0.28),956px 658px 0 -0.1px rgba(255,255,255,0.12),615px 1094px 0 -0.1px rgba(255,255,255,0.12),1638px 729px 0 0.3px rgba(255,255,255,0.26),181px 128px 0 0.0px rgba(255,255,255,0.24),1532px 958px 0 0.0px rgba(255,255,255,0.21),1602px 272px 0 -0.1px rgba(255,255,255,0.33),550px 729px 0 -0.1px rgba(255,255,255,0.17),1786px 660px 0 -0.3px rgba(255,255,255,0.28),340px 878px 0 0.3px rgba(255,255,255,0.32),1765px 196px 0 0.3px rgba(255,255,255,0.19),298px 770px 0 0.0px rgba(255,255,255,0.35),1387px 490px 0 -0.1px rgba(255,255,255,0.17),1103px 762px 0 -0.1px rgba(255,255,255,0.31),630px 1002px 0 -0.1px rgba(255,255,255,0.18);animation:drift 260s linear infinite reverse;opacity:.7}
+/* film grain so the light does not band on cheap panels */
+.win[data-wk="atth"]:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.42'/></svg>");
+}
+
+/* ============================================================ living window */
+
+/* three soft light masses that drift on long, co-prime cycles */
+.win[data-wk="killerpetals"] .aur{
+  position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform;
+}
+.win[data-wk="killerpetals"] .aur.a{
+  width:56vw;height:56vw;left:-14vw;top:-18vw;
+  background:radial-gradient(circle at 42% 42%, #c0392b38, #c0392b0d 46%, transparent 68%);
+  animation:aurA 41s ease-in-out infinite;
+}
+.win[data-wk="killerpetals"] .aur.b{
+  width:48vw;height:48vw;right:-12vw;bottom:-16vw;
+  background:radial-gradient(circle at 55% 55%, #7a1f283a, #7a1f280b 48%, transparent 70%);
+  animation:aurB 53s ease-in-out infinite;
+}
+.win[data-wk="killerpetals"] .aur.c{
+  width:38vw;height:38vw;left:34vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, #2a162030, #2a162008 50%, transparent 72%);
+  animation:aurC 67s ease-in-out infinite;
+}
+/* starfield: one dot + a long box-shadow list, drifting very slowly */
+.win[data-wk="killerpetals"] .stars,.win[data-wk="killerpetals"] .stars2{
+  position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;
+  background:transparent;
+}
+.win[data-wk="killerpetals"] .stars{box-shadow:820px 238px 0 0.0px rgba(255,255,255,0.33),248px 172px 0 -0.1px rgba(255,255,255,0.41),130px 134px 0 0.3px rgba(255,255,255,0.42),1665px 429px 0 -0.3px rgba(255,255,255,0.33),907px 643px 0 0.3px rgba(255,255,255,0.14),241px 787px 0 0.0px rgba(255,255,255,0.38),1028px 394px 0 0.0px rgba(255,255,255,0.4),963px 539px 0 0.3px rgba(255,255,255,0.25),1166px 869px 0 0.3px rgba(255,255,255,0.13),1725px 187px 0 0.3px rgba(255,255,255,0.43),65px 769px 0 -0.3px rgba(255,255,255,0.25),818px 63px 0 -0.1px rgba(255,255,255,0.35),995px 877px 0 0.0px rgba(255,255,255,0.35),494px 980px 0 -0.1px rgba(255,255,255,0.41),402px 587px 0 0.0px rgba(255,255,255,0.47),1280px 1042px 0 -0.3px rgba(255,255,255,0.16),441px 127px 0 -0.1px rgba(255,255,255,0.4),1509px 200px 0 0.0px rgba(255,255,255,0.5),731px 419px 0 -0.3px rgba(255,255,255,0.48),842px 132px 0 -0.1px rgba(255,255,255,0.2),987px 1001px 0 -0.3px rgba(255,255,255,0.22),525px 50px 0 -0.3px rgba(255,255,255,0.49),852px 230px 0 0.0px rgba(255,255,255,0.26),1258px 737px 0 0.0px rgba(255,255,255,0.4),1530px 551px 0 0.3px rgba(255,255,255,0.12),1032px 443px 0 0.3px rgba(255,255,255,0.47),1117px 565px 0 -0.1px rgba(255,255,255,0.48),229px 888px 0 0.3px rgba(255,255,255,0.38),1270px 238px 0 0.0px rgba(255,255,255,0.24),1436px 998px 0 0.3px rgba(255,255,255,0.41),834px 608px 0 0.0px rgba(255,255,255,0.13),730px 954px 0 -0.1px rgba(255,255,255,0.2),31px 14px 0 0.0px rgba(255,255,255,0.46),80px 473px 0 -0.3px rgba(255,255,255,0.25),382px 509px 0 -0.1px rgba(255,255,255,0.28),370px 121px 0 0.3px rgba(255,255,255,0.16),526px 372px 0 -0.3px rgba(255,255,255,0.27),444px 1012px 0 -0.1px rgba(255,255,255,0.29),1358px 955px 0 0.3px rgba(255,255,255,0.24),746px 296px 0 0.3px rgba(255,255,255,0.17),1381px 1075px 0 -0.1px rgba(255,255,255,0.39),962px 748px 0 -0.1px rgba(255,255,255,0.36),79px 620px 0 -0.1px rgba(255,255,255,0.21),1774px 189px 0 0.0px rgba(255,255,255,0.31),695px 138px 0 -0.3px rgba(255,255,255,0.19),737px 352px 0 0.3px rgba(255,255,255,0.19);animation:drift 180s linear infinite}
+.win[data-wk="killerpetals"] .stars2{box-shadow:832px 725px 0 0.0px rgba(255,255,255,0.19),1511px 801px 0 -0.1px rgba(255,255,255,0.21),914px 919px 0 -0.3px rgba(255,255,255,0.23),143px 1018px 0 0.3px rgba(255,255,255,0.23),1401px 489px 0 -0.1px rgba(255,255,255,0.27),442px 339px 0 -0.1px rgba(255,255,255,0.31),92px 969px 0 0.0px rgba(255,255,255,0.25),94px 174px 0 -0.3px rgba(255,255,255,0.15),614px 299px 0 0.3px rgba(255,255,255,0.2),712px 572px 0 -0.3px rgba(255,255,255,0.18),591px 415px 0 -0.1px rgba(255,255,255,0.13),1487px 122px 0 0.3px rgba(255,255,255,0.22),1158px 157px 0 0.0px rgba(255,255,255,0.21),663px 1097px 0 -0.3px rgba(255,255,255,0.29),433px 902px 0 -0.3px rgba(255,255,255,0.16),1365px 577px 0 0.0px rgba(255,255,255,0.18),650px 905px 0 0.3px rgba(255,255,255,0.36),1342px 562px 0 0.3px rgba(255,255,255,0.35),88px 407px 0 -0.1px rgba(255,255,255,0.24),830px 901px 0 0.0px rgba(255,255,255,0.29),983px 50px 0 0.0px rgba(255,255,255,0.26),786px 69px 0 -0.3px rgba(255,255,255,0.29),462px 765px 0 0.0px rgba(255,255,255,0.24),585px 731px 0 0.3px rgba(255,255,255,0.2),733px 229px 0 -0.3px rgba(255,255,255,0.16),83px 920px 0 0.3px rgba(255,255,255,0.25),878px 188px 0 0.3px rgba(255,255,255,0.2),500px 1051px 0 -0.1px rgba(255,255,255,0.22),1375px 895px 0 -0.3px rgba(255,255,255,0.32),86px 517px 0 0.3px rgba(255,255,255,0.28),900px 809px 0 -0.1px rgba(255,255,255,0.16),773px 344px 0 0.0px rgba(255,255,255,0.25),1283px 179px 0 0.3px rgba(255,255,255,0.32),1317px 465px 0 0.3px rgba(255,255,255,0.16);animation:drift 260s linear infinite reverse;opacity:.7}
+/* film grain so the light does not band on cheap panels */
+.win[data-wk="killerpetals"]:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.42'/></svg>");
+}
+
+/* ============================================================ living window */
+
+/* three soft light masses that drift on long, co-prime cycles */
+.win[data-wk="alettertogod"] .aur{
+  position:absolute;border-radius:50%;filter:blur(64px);opacity:.5;
+  mix-blend-mode:screen;will-change:transform;
+}
+.win[data-wk="alettertogod"] .aur.a{
+  width:56vw;height:56vw;left:-14vw;top:-18vw;
+  background:radial-gradient(circle at 42% 42%, #8fa4bd38, #8fa4bd0d 46%, transparent 68%);
+  animation:aurA 41s ease-in-out infinite;
+}
+.win[data-wk="alettertogod"] .aur.b{
+  width:48vw;height:48vw;right:-12vw;bottom:-16vw;
+  background:radial-gradient(circle at 55% 55%, #4a5c723a, #4a5c720b 48%, transparent 70%);
+  animation:aurB 53s ease-in-out infinite;
+}
+.win[data-wk="alettertogod"] .aur.c{
+  width:38vw;height:38vw;left:34vw;top:26vh;
+  background:radial-gradient(circle at 50% 50%, #1a202930, #1a202908 50%, transparent 72%);
+  animation:aurC 67s ease-in-out infinite;
+}
+/* starfield: one dot + a long box-shadow list, drifting very slowly */
+.win[data-wk="alettertogod"] .stars,.win[data-wk="alettertogod"] .stars2{
+  position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;
+  background:transparent;
+}
+.win[data-wk="alettertogod"] .stars{box-shadow:1042px 292px 0 0.0px rgba(255,255,255,0.46),1215px 626px 0 -0.1px rgba(255,255,255,0.36),516px 867px 0 -0.1px rgba(255,255,255,0.4),1413px 375px 0 0.0px rgba(255,255,255,0.24),933px 450px 0 0.0px rgba(255,255,255,0.23),863px 572px 0 -0.3px rgba(255,255,255,0.41),111px 810px 0 0.0px rgba(255,255,255,0.34),726px 468px 0 -0.1px rgba(255,255,255,0.24),1134px 802px 0 0.0px rgba(255,255,255,0.32),746px 757px 0 0.3px rgba(255,255,255,0.3),465px 477px 0 -0.3px rgba(255,255,255,0.12),1468px 808px 0 0.3px rgba(255,255,255,0.34),1506px 208px 0 -0.3px rgba(255,255,255,0.13),1488px 388px 0 -0.1px rgba(255,255,255,0.33),1540px 1019px 0 -0.3px rgba(255,255,255,0.31),1084px 346px 0 -0.3px rgba(255,255,255,0.33),1581px 226px 0 0.3px rgba(255,255,255,0.31),541px 630px 0 0.3px rgba(255,255,255,0.36),937px 902px 0 0.3px rgba(255,255,255,0.27),1122px 935px 0 0.0px rgba(255,255,255,0.17),286px 209px 0 -0.1px rgba(255,255,255,0.15),255px 1058px 0 0.0px rgba(255,255,255,0.24),947px 506px 0 0.3px rgba(255,255,255,0.14),793px 606px 0 -0.3px rgba(255,255,255,0.33),299px 393px 0 0.3px rgba(255,255,255,0.19),1598px 631px 0 0.0px rgba(255,255,255,0.46),156px 181px 0 -0.1px rgba(255,255,255,0.14),147px 1045px 0 0.3px rgba(255,255,255,0.18),1427px 997px 0 0.3px rgba(255,255,255,0.29),836px 929px 0 0.3px rgba(255,255,255,0.18),1244px 1057px 0 -0.1px rgba(255,255,255,0.12),809px 146px 0 0.0px rgba(255,255,255,0.32),1209px 362px 0 -0.1px rgba(255,255,255,0.18),1631px 798px 0 0.3px rgba(255,255,255,0.49),267px 1088px 0 0.0px rgba(255,255,255,0.42),1498px 506px 0 -0.3px rgba(255,255,255,0.32),1456px 55px 0 -0.3px rgba(255,255,255,0.28),185px 173px 0 -0.1px rgba(255,255,255,0.46),239px 109px 0 0.0px rgba(255,255,255,0.4),1285px 512px 0 -0.3px rgba(255,255,255,0.2),401px 801px 0 -0.1px rgba(255,255,255,0.5),1202px 412px 0 -0.1px rgba(255,255,255,0.29),1713px 749px 0 -0.1px rgba(255,255,255,0.13),1730px 414px 0 0.0px rgba(255,255,255,0.15),558px 1086px 0 -0.3px rgba(255,255,255,0.39),453px 240px 0 -0.3px rgba(255,255,255,0.14);animation:drift 180s linear infinite}
+.win[data-wk="alettertogod"] .stars2{box-shadow:596px 669px 0 -0.3px rgba(255,255,255,0.19),454px 81px 0 0.3px rgba(255,255,255,0.16),1247px 274px 0 -0.3px rgba(255,255,255,0.31),595px 733px 0 0.3px rgba(255,255,255,0.2),769px 237px 0 -0.3px rgba(255,255,255,0.25),1523px 538px 0 -0.1px rgba(255,255,255,0.24),228px 37px 0 0.3px rgba(255,255,255,0.29),816px 758px 0 0.3px rgba(255,255,255,0.31),1553px 921px 0 0.3px rgba(255,255,255,0.16),93px 355px 0 0.0px rgba(255,255,255,0.17),1394px 611px 0 0.3px rgba(255,255,255,0.16),1337px 675px 0 -0.1px rgba(255,255,255,0.27),295px 10px 0 0.3px rgba(255,255,255,0.29),1457px 327px 0 -0.3px rgba(255,255,255,0.24),846px 699px 0 0.0px rgba(255,255,255,0.18),1372px 639px 0 -0.3px rgba(255,255,255,0.25),427px 373px 0 -0.1px rgba(255,255,255,0.33),852px 467px 0 -0.1px rgba(255,255,255,0.2),133px 661px 0 0.3px rgba(255,255,255,0.26),1572px 1006px 0 -0.3px rgba(255,255,255,0.12),319px 233px 0 -0.3px rgba(255,255,255,0.36),1611px 903px 0 -0.3px rgba(255,255,255,0.33),1280px 475px 0 -0.3px rgba(255,255,255,0.26),732px 980px 0 0.3px rgba(255,255,255,0.28),1609px 341px 0 0.3px rgba(255,255,255,0.32),592px 232px 0 -0.3px rgba(255,255,255,0.15),1011px 682px 0 -0.1px rgba(255,255,255,0.26),700px 53px 0 -0.3px rgba(255,255,255,0.34),1723px 212px 0 -0.1px rgba(255,255,255,0.13),366px 890px 0 0.3px rgba(255,255,255,0.32),1132px 773px 0 -0.1px rgba(255,255,255,0.24),771px 26px 0 -0.3px rgba(255,255,255,0.25),173px 210px 0 0.3px rgba(255,255,255,0.36),1203px 368px 0 0.0px rgba(255,255,255,0.17);animation:drift 260s linear infinite reverse;opacity:.7}
+/* film grain so the light does not band on cheap panels */
+.win[data-wk="alettertogod"]:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter>\
+<rect width='120' height='120' filter='url(%23n)' opacity='.42'/></svg>");
+}
+
+/* ---------------- cast strip ------------------------------------------- */
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));
+  gap:12px;margin:4px 0 6px}
+.cc{display:flex;gap:13px;align-items:center;padding:11px 13px;
+  border:1px solid rgba(120,98,60,.26);border-radius:9px;text-decoration:none;
+  color:inherit;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);
+  transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.cc:hover{border-color:rgba(201,164,92,.5);background:rgba(201,164,92,.05);
+  transform:translateY(-1px)}
+.cc-face{flex:0 0 44px;width:44px;height:54px;border-radius:5px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(120,98,60,.16);border:1px solid rgba(120,98,60,.3)}
+.cc-face img{width:100%;height:100%;object-fit:cover;display:block}
+.cc-mono{font-family:Georgia,'Times New Roman',serif;font-size:1.28rem;
+  color:rgba(201,164,92,.72);line-height:1}
+.cc-txt{min-width:0}
+.cc-name{font-family:Georgia,'Times New Roman',serif;font-size:.94rem;
+  color:var(--fg);margin-bottom:3px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.cc-line{font-size:.755rem;line-height:1.45;color:#8b96a8;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden}
+.cast-empty{font-size:.8rem;color:var(--faint);padding:12px 0;
+  border-top:1px solid rgba(120,98,60,.18)}
+@media (max-width:640px){
+  .cast{grid-template-columns:1fr;gap:9px}
+  .cc-face{flex-basis:38px;width:38px;height:47px}
+}
+
+/* ---------------- the writing desk (home page progress band) ------------ */
+.desk{margin:26px 0 8px;display:grid;gap:2px;
+  border:1px solid rgba(120,98,60,.28);border-radius:10px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent)}
+.dp-row{display:block;padding:15px 20px 14px;text-decoration:none;color:inherit;
+  border-bottom:1px solid rgba(120,98,60,.16);position:relative;
+  transition:background .18s ease}
+.dp-row:last-child{border-bottom:0}
+.dp-row:hover{background:rgba(201,164,92,.055)}
+.dp-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--ac);opacity:.5;transition:opacity .18s ease}
+.dp-row:hover::before{opacity:1}
+.dp-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.dp-name{font-family:Georgia,'Times New Roman',serif;font-size:1.02rem;
+  letter-spacing:.005em;color:var(--fg)}
+.dp-stat,.dp-goal{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;
+  color:#8b96a8;font-variant-numeric:tabular-nums}
+.dp-goal{margin-left:auto}
+.dp-track{height:4px;background:rgba(120,98,60,.34);border-radius:2px;overflow:hidden}
+.dp-track i{display:block;height:100%;background:var(--ac);border-radius:2px;
+  opacity:.9;transition:width .5s cubic-bezier(.22,.61,.36,1)}
+.dp-row:hover .dp-track i{opacity:1}
+.dp-foot{display:flex;justify-content:space-between;gap:12px;margin-top:7px;
+  font-size:.72rem;letter-spacing:.055em;color:#8b96a8}
+.dp-latest{font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.dp-idle{opacity:.55}
+.dp-status{text-transform:uppercase;letter-spacing:.1em;opacity:.8;white-space:nowrap}
+.desk-note{margin-top:11px;font-size:.74rem;line-height:1.55;color:#8b96a8;
+  max-width:70ch}
+@media (max-width:640px){
+  .dp-row{padding:13px 15px 12px}
+  .dp-name{font-size:.98rem}
+  .dp-stat,.dp-goal{font-size:.69rem}
+  .dp-foot{font-size:.68rem;flex-wrap:wrap}
+}
+
+/* ---------------- follow band ------------------------------------------- */
+.follow{margin:22px 0 4px;padding:19px 21px;border:1px solid rgba(120,98,60,.3);
+  border-radius:10px;background:linear-gradient(180deg,rgba(201,164,92,.055),rgba(201,164,92,.012))}
+.follow h3{margin:0 0 5px;font-family:Georgia,'Times New Roman',serif;font-weight:400;
+  font-size:1.06rem;color:var(--fg)}
+.follow p{margin:0 0 13px;font-size:.83rem;line-height:1.6;color:var(--faint);
+  max-width:62ch}
+.follow-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.follow-row a,.follow-row button{display:inline-flex;align-items:center;gap:7px;
+  padding:8px 15px;border-radius:7px;font-size:.79rem;letter-spacing:.05em;
+  text-decoration:none;cursor:pointer;border:1px solid rgba(120,98,60,.42);
+  background:transparent;color:var(--fg);transition:all .17s ease;
+  font-family:inherit}
+.follow-row a:hover,.follow-row button:hover{border-color:rgba(201,164,92,.75);
+  background:rgba(201,164,92,.1);color:#e8c987}
+.follow-row .ic{opacity:.75;font-size:.85em}
+.feed-hint{font-size:.73rem;color:var(--faint);opacity:.75;margin-top:10px;
+  line-height:1.55}
+
+/* ============================================================ glass tokens */
+:root{
+  /* fill: enough dark scrim that text contrast never depends on the aurora */
+  --g-fill:      rgba(18,22,30,.62);
+  --g-fill-soft: rgba(18,22,30,.46);
+  --g-fill-solid:rgba(22,27,37,.90);   /* fallback when backdrop-filter is off */
+  --g-fill-hi:   rgba(30,36,48,.72);   /* hover */
+
+  --g-edge:      rgba(255,255,255,.085);  /* outer hairline */
+  --g-edge-hi:   rgba(255,255,255,.15);
+  --g-inner:     rgba(255,255,255,.055);  /* inset top highlight  */
+
+  --g-blur:      18px;
+  --g-blur-sm:   12px;
+  --g-sat:       145%;
+
+  --g-shadow:    0 10px 34px rgba(0,0,0,.40),0 2px 8px rgba(0,0,0,.22);
+  --g-shadow-lg: 0 22px 60px rgba(0,0,0,.52),0 4px 14px rgba(0,0,0,.28);
+}
+
+/* ============================================================ glass surface */
+.glass{
+  background:var(--g-fill);
+  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat));
+  backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat));
+  border:1px solid var(--g-edge);
+  box-shadow:var(--g-shadow),inset 0 1px 0 var(--g-inner);
+}
+
+/* ============================================================ light field
+   The decisive part. `backdrop-filter:blur()` smears whatever is behind the
+   panel — and smearing near-black gives near-black, which is why a frosted panel
+   over a dim ground reads as a flat grey box.
+
+   Measured: with light only in the hero, the ground under the book cards sat at
+   luminance 11-31 while the aurora peaked at 174. Glass over that is just a dark
+   swatch. So the light is distributed across ALL FOUR QUADRANTS of the viewport,
+   which is what the panels actually scroll through.
+
+   Reading mode is untouched — it has no .win at all and its paper is opaque. */
+html[data-surface="glass"] body:not(.reading) .win .aur{opacity:.85}
+html[data-surface="glass"] body:not(.reading) .win .aur.a{filter:blur(72px)}
+html[data-surface="glass"] body:not(.reading) .win .aur.b{filter:blur(72px)}
+
+/* four light masses, one per quadrant, so a panel always has gradient behind it */
+/* hidden unless glass is on — they exist only to give panes something to refract */
+body:not(.reading) .win .lamp,
+body:not(.reading) .win .lamp2,
+body:not(.reading) .win .lamp3,
+body:not(.reading) .win .lamp4{display:none}
+html[data-surface="glass"] body:not(.reading) .win{
+  background:
+    radial-gradient(72% 58% at 14% 6%,  rgba(201,164,92,.34), transparent 62%),
+    radial-gradient(66% 62% at 92% 28%, rgba(127,159,191,.38), transparent 64%),
+    radial-gradient(70% 60% at 6% 90%,  rgba(214,178,106,.28), transparent 64%),
+    radial-gradient(62% 56% at 90% 94%, rgba(96,132,168,.30), transparent 66%),
+    linear-gradient(170deg,#0e1219 0%,#0b0f16 52%,#090d13 100%);
+}
+html[data-surface="glass"] body:not(.reading) .win .lamp,
+html[data-surface="glass"] body:not(.reading) .win .lamp2,
+html[data-surface="glass"] body:not(.reading) .win .lamp3,
+html[data-surface="glass"] body:not(.reading) .win .lamp4{display:block}
+html[data-surface="glass"] body:not(.reading) .win .lamp,
+html[data-surface="glass"] body:not(.reading) .win .lamp2,
+html[data-surface="glass"] body:not(.reading) .win .lamp3,
+html[data-surface="glass"] body:not(.reading) .win .lamp4{
+  position:absolute;border-radius:50%;pointer-events:none;
+  mix-blend-mode:screen;
+}
+/* warm gold, upper left */
+html[data-surface="glass"] body:not(.reading) .win .lamp{
+  filter:blur(84px);opacity:.72;
+  width:60vw;height:60vh;left:-6vw;top:-8vh;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(201,164,92,.62),rgba(201,164,92,.24) 44%,transparent 72%);
+  animation:aurC 47s ease-in-out infinite;
+}
+/* cool slate, right middle — this is the one the card row sits over */
+html[data-surface="glass"] body:not(.reading) .win .lamp2{
+  filter:blur(92px);opacity:.68;
+  width:64vw;height:64vh;right:-14vw;top:18vh;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(127,159,191,.68),rgba(127,159,191,.24) 46%,transparent 74%);
+  animation:aurB 61s ease-in-out infinite;
+}
+/* warm ember, lower left */
+html[data-surface="glass"] body:not(.reading) .win .lamp3{
+  filter:blur(96px);opacity:.55;
+  width:56vw;height:52vh;left:-8vw;bottom:-14vh;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(214,178,106,.58),rgba(214,178,106,.20) 46%,transparent 74%);
+  animation:aurA 71s ease-in-out infinite;
+}
+/* cool depth, lower right */
+html[data-surface="glass"] body:not(.reading) .win .lamp4{
+  filter:blur(100px);opacity:.50;
+  width:52vw;height:48vh;right:-6vw;bottom:-10vh;
+  background:radial-gradient(circle at 50% 50%,
+    rgba(96,132,168,.60),rgba(96,132,168,.18) 48%,transparent 76%);
+  animation:aurC 83s ease-in-out infinite reverse;
+}
+
+/* ============================================================ glass I: rail
+   The rail is a vertical pane of glass over the aurora. */
+html[data-surface="glass"] body:not(.reading) .rail{
+  background:linear-gradient(180deg,rgba(24,30,42,.52),rgba(14,18,26,.44));
+  -webkit-backdrop-filter:blur(24px) saturate(175%);
+  backdrop-filter:blur(24px) saturate(175%);
+  border-right:1px solid rgba(255,255,255,.10);
+  box-shadow:1px 0 0 rgba(255,255,255,.04),0 0 46px rgba(0,0,0,.45);
+}
+html[data-surface="glass"] body:not(.reading) .rail:hover,
+html[data-surface="glass"] body:not(.reading) .rail.open,
+html[data-surface="glass"] body:not(.reading).rail-open .rail{
+  box-shadow:14px 0 50px rgba(0,0,0,.58),inset -1px 0 0 rgba(255,255,255,.08);
+}
+/* the rail's own dividers soften against glass */
+html[data-surface="glass"] body:not(.reading) .rail-brand,
+html[data-surface="glass"] body:not(.reading) .rail-foot{border-color:rgba(255,255,255,.085)}
+html[data-surface="glass"] body:not(.reading) .rail-div{background:rgba(255,255,255,.09)}
+html[data-surface="glass"] body:not(.reading) .ri.on{
+  background:linear-gradient(90deg,rgba(201,164,92,.20),rgba(201,164,92,.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
+}
+
+/* ============================================================ glass II: book cards
+   A bright top sheen is what makes a panel read as a pane and not a swatch. */
+html[data-surface="glass"] body:not(.reading) .book{
+  background:
+    linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.015) 40%,transparent 62%),
+    linear-gradient(180deg,rgba(128,146,178,.13),rgba(30,38,52,.10));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.44),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -1px 0 rgba(0,0,0,.20);
+}
+html[data-surface="glass"] body:not(.reading) .book:hover{
+  border-color:rgba(232,201,135,.52);
+  box-shadow:
+    0 20px 52px rgba(0,0,0,.52),
+    0 0 0 1px rgba(201,164,92,.22),
+    inset 0 1px 0 rgba(255,255,255,.24);
+}
+/* the cover well goes from opaque ink to smoked glass */
+html[data-surface="glass"] body:not(.reading) .book .cover{
+  background:
+    radial-gradient(320px 220px at 50% 0%,rgba(201,164,92,.18),transparent 70%),
+    rgba(10,13,19,.30);
+  -webkit-backdrop-filter:blur(10px) saturate(150%);
+  backdrop-filter:blur(10px) saturate(150%);
+  border-right:1px solid rgba(255,255,255,.075);
+}
+html[data-surface="glass"] body:not(.reading) .book .cover img{
+  box-shadow:0 16px 38px rgba(0,0,0,.72),0 0 0 1px rgba(201,164,92,.26);
+}
+
+/* ============================================================ glass III: contents panel */
+html[data-surface="glass"] body:not(.reading) .toc{
+  background:linear-gradient(180deg,rgba(26,32,44,.62),rgba(13,17,24,.58));
+  -webkit-backdrop-filter:blur(28px) saturate(175%);
+  backdrop-filter:blur(28px) saturate(175%);
+  border-right:1px solid rgba(255,255,255,.11);
+  box-shadow:18px 0 60px rgba(0,0,0,.58),inset -1px 0 0 rgba(255,255,255,.07);
+}
+html[data-surface="glass"] body:not(.reading) .toc-hd{border-color:rgba(255,255,255,.09)}
+
+/* ============================================================ glass IV: chapter rows
+   Rows are cut into the section pane rather than floating as 80 separate
+   panes — one blur for the list, hairlines between. */
+html[data-surface="glass"] body:not(.reading) .chaps{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.012) 34%,transparent 70%),
+    rgba(20,26,36,.34);
+  -webkit-backdrop-filter:blur(18px) saturate(175%);
+  backdrop-filter:blur(18px) saturate(175%);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.40),
+    inset 0 1px 0 rgba(255,255,255,.17);
+  padding:6px;overflow:hidden;
+}
+html[data-surface="glass"] body:not(.reading) .chap{
+  border-bottom:1px solid rgba(255,255,255,.055);
+  border-radius:7px;
+}
+html[data-surface="glass"] body:not(.reading) .chap:last-child{border-bottom:0}
+html[data-surface="glass"] body:not(.reading) .chap:hover{
+  background:linear-gradient(90deg,rgba(201,164,92,.16),rgba(255,255,255,.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+}
+/* section rule under a heading reads better as a light seam than a dark line */
+html[data-surface="glass"] body:not(.reading) .sec-head{border-bottom-color:rgba(255,255,255,.11)}
+
+/* ============================================================ glass V: search */
+html[data-surface="glass"] body:not(.reading) .search input{
+  background:rgba(255,255,255,.075);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.11);
+}
+html[data-surface="glass"] body:not(.reading) .search input:focus{
+  border-color:rgba(201,164,92,.62);
+  background:rgba(255,255,255,.10);
+  box-shadow:0 0 0 3px rgba(201,164,92,.13),inset 0 1px 0 rgba(255,255,255,.13);
+}
+html[data-surface="glass"] body:not(.reading) .sresults{
+  background:rgba(24,30,42,.66);
+  -webkit-backdrop-filter:blur(26px) saturate(175%);
+  backdrop-filter:blur(26px) saturate(175%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:var(--g-shadow-lg),inset 0 1px 0 rgba(255,255,255,.16);
+}
+html[data-surface="glass"] body:not(.reading) .sresults a{border-bottom-color:rgba(255,255,255,.06)}
+html[data-surface="glass"] body:not(.reading) .sresults a:hover,
+html[data-surface="glass"] body:not(.reading) .sresults a.sel{background:rgba(255,255,255,.08)}
+
+/* ============================================================ glass VI: desks, cast, follow
+   These three modules ship their own CSS constants; rather than edit them all,
+   re-state their surfaces here. Glass inside a glass parent is *not* another
+   blur — it is a lighter fill, which is both correct optically and cheap. */
+html[data-surface="glass"] body:not(.reading) .desk{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.01) 30%,transparent 66%),
+    rgba(20,26,36,.30);
+  -webkit-backdrop-filter:blur(18px) saturate(175%);
+  backdrop-filter:blur(18px) saturate(175%);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 14px 40px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.16);
+}
+html[data-surface="glass"] body:not(.reading) .dp-row{border-bottom-color:rgba(255,255,255,.06)}
+html[data-surface="glass"] body:not(.reading) .dp-row:hover{background:rgba(255,255,255,.055)}
+
+html[data-surface="glass"] body:not(.reading) .cc{
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 4px 14px rgba(0,0,0,.20);
+}
+html[data-surface="glass"] body:not(.reading) .cc:hover{
+  border-color:rgba(232,201,135,.55);
+  background:linear-gradient(160deg,rgba(201,164,92,.20),rgba(255,255,255,.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 8px 22px rgba(0,0,0,.32);
+}
+html[data-surface="glass"] body:not(.reading) .cc-face{
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+html[data-surface="glass"] body:not(.reading) .follow{
+  background:
+    linear-gradient(160deg,rgba(201,164,92,.16),rgba(201,164,92,.02) 70%),
+    rgba(20,26,36,.32);
+  -webkit-backdrop-filter:blur(18px) saturate(175%);
+  backdrop-filter:blur(18px) saturate(175%);
+  border:1px solid rgba(201,164,92,.34);
+  box-shadow:0 14px 40px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.14);
+}
+html[data-surface="glass"] body:not(.reading) .follow-row a,
+html[data-surface="glass"] body:not(.reading) .follow-row button{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}
+html[data-surface="glass"] body:not(.reading) .follow-row a:hover,
+html[data-surface="glass"] body:not(.reading) .follow-row button:hover{
+  background:rgba(201,164,92,.20);
+  border-color:rgba(232,201,135,.60);
+}
+
+/* ============================================================ glass VII: misc chrome */
+html[data-surface="glass"] body:not(.reading) footer{border-top:1px solid rgba(255,255,255,.08)}
+html[data-surface="glass"] body:not(.reading) .btn{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.17);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 6px 18px rgba(0,0,0,.32);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  backdrop-filter:blur(14px) saturate(160%);
+}
+html[data-surface="glass"] body:not(.reading) .btn:hover{
+  background:linear-gradient(180deg,rgba(201,164,92,.28),rgba(201,164,92,.12));
+  border-color:rgba(232,201,135,.62);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 10px 26px rgba(0,0,0,.38);
+}
+html[data-surface="glass"] body:not(.reading) .btn.ghost{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02))}
+html[data-surface="glass"] body:not(.reading) .badge{
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+
+/* ============================================================ glass VIII: text contrast
+   Glass means text sits on a background that drifts with the aurora, so contrast
+   can no longer be assumed from the token. Measured on the composited card over
+   the lit field:
+     --dim  (#8b94a6) on card  = 4.47:1   -> just under AA
+     --faint(#606a7d) on card  = 2.51:1   -> well under AA
+   Fix at the surface, not by raising the shared tokens — those are tuned for
+   opaque panels elsewhere and raising them flattens the hierarchy. */
+html[data-surface="glass"] body:not(.reading) .book p{color:#9fa9bb}          /* 4.98:1 worst-case */
+html[data-surface="glass"] body:not(.reading) .book .meta{color:#a3adbe}      /* 5.21:1 worst-case */
+html[data-surface="glass"] body:not(.reading) .book .meta span{color:inherit}
+/* the chapter list sits on its own pane over the same field */
+html[data-surface="glass"] body:not(.reading) .chap .n,
+html[data-surface="glass"] body:not(.reading) .chap .w{color:#a3adbe}         /* 5.21:1 worst-case */
+/* the writing desk and cast cards are lighter surfaces, same treatment */
+html[data-surface="glass"] body:not(.reading) .dp-stat,
+html[data-surface="glass"] body:not(.reading) .dp-goal{color:#a8b2c4}
+html[data-surface="glass"] body:not(.reading) .cc-line{color:#a8b2c4}
+html[data-surface="glass"] body:not(.reading) .dp-foot,
+html[data-surface="glass"] body:not(.reading) .dp-latest,
+html[data-surface="glass"] body:not(.reading) .dp-status,
+html[data-surface="glass"] body:not(.reading) .desk-note{color:#a8b2c4}
+
+/* ============================================================ reading mode: NO glass
+   Parchment must stay opaque. This is a hard rule — prose on frosted glass is
+   unreadable and the whole reading experience is the point of the site. */
+body.reading .rail,
+body.reading .toc,
+body.reading .paper,
+body.reading .tear{
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+}
+/* page turns and the lightbox stay solid so nothing blurs the sheet */
+body.reading .chaps,
+body.reading .book,
+body.reading .cc,
+body.reading .follow{
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+}
+
+/* ============================================================ fallback
+   No backdrop-filter (old Firefox, some embedded webviews): fall back to a
+   solid tint. Never leave a 46%-opaque panel over body text. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html[data-surface="glass"] body:not(.reading) .book,
+  html[data-surface="glass"] body:not(.reading) .chaps,
+  html[data-surface="glass"] body:not(.reading) .desk,
+  html[data-surface="glass"] body:not(.reading) .cc,
+  html[data-surface="glass"] body:not(.reading) .follow,
+  html[data-surface="glass"] body:not(.reading) .sresults,
+  html[data-surface="glass"] body:not(.reading) .btn{
+    background:var(--g-fill-solid) !important;
+  }
+  html[data-surface="glass"] body:not(.reading) .rail{
+    background:linear-gradient(180deg,rgba(18,22,30,.97),rgba(12,15,21,.97)) !important;
+  }
+  html[data-surface="glass"] body:not(.reading) .toc{
+    background:linear-gradient(180deg,rgba(20,25,34,.97),rgba(11,14,20,.97)) !important;
+  }
+}
+
+/* ============================================================ mobile
+   26px blur on a phone GPU is a slideshow. Cut the radius, deepen the scrim. */
+@media (max-width:640px){
+  :root{--g-blur:13px;--g-blur-sm:9px}
+  html[data-surface="glass"] body:not(.reading) .rail{
+    -webkit-backdrop-filter:blur(16px) saturate(150%);
+    backdrop-filter:blur(16px) saturate(150%);
+  }
+  html[data-surface="glass"] body:not(.reading) .toc{
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    backdrop-filter:blur(18px) saturate(150%);
+  }
+  html[data-surface="glass"] body:not(.reading) .book{
+    -webkit-backdrop-filter:blur(15px) saturate(160%);
+    backdrop-filter:blur(15px) saturate(160%);
+  }
+  html[data-surface="glass"] body:not(.reading) .chaps,
+  html[data-surface="glass"] body:not(.reading) .desk,
+  html[data-surface="glass"] body:not(.reading) .follow{
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+    backdrop-filter:blur(12px) saturate(160%);
+  }
+}
+
+/* respect a reader who asked for less */
+@media (prefers-reduced-transparency:reduce){
+  html[data-surface="glass"] body:not(.reading) .book,
+  html[data-surface="glass"] body:not(.reading) .chaps,
+  html[data-surface="glass"] body:not(.reading) .desk,
+  html[data-surface="glass"] body:not(.reading) .cc,
+  html[data-surface="glass"] body:not(.reading) .follow,
+  html[data-surface="glass"] body:not(.reading) .sresults{
+    background:var(--g-fill-solid) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+}
+
+/* ============================================================ frost: tokens
+   A separate token set from --g-*, so the warm glass recipe survives and the two
+   can be compared. Frost is the default; the warm set stays for reference. */
+:root{
+  --f-fill:       rgba(30,39,52,.60);   /* cool slate scrim   */
+  --f-fill-soft:  rgba(30,39,52,.44);
+  --f-fill-solid: rgba(26,35,50,.94);
+  --f-rim:        rgba(178,206,238,.17); /* blue-white hairline */
+  --f-rim-hi:     rgba(198,220,246,.30);
+  --f-sheen:      rgba(214,232,255,.11); /* top edge highlight  */
+  --f-blur:       27px;
+  --f-blur-sm:    15px;
+  --f-sat:        118%;                  /* NOT 175% - see note above */
+  --f-hue:        -6deg;
+  --f-shadow:     0 10px 34px rgba(4,10,22,.46),0 2px 8px rgba(4,10,22,.26);
+  --f-shadow-lg:  0 22px 60px rgba(4,10,22,.58),0 4px 14px rgba(4,10,22,.30);
+}
+
+/* the shared frost recipe, so every pane refracts identically */
+html[data-surface="glass"] body:not(.reading) .book,
+html[data-surface="glass"] body:not(.reading) .chaps,
+html[data-surface="glass"] body:not(.reading) .desk,
+html[data-surface="glass"] body:not(.reading) .follow,
+html[data-surface="glass"] body:not(.reading) .sresults,
+html[data-surface="glass"] body:not(.reading) .toc,
+html[data-surface="glass"] body:not(.reading) .rail{
+  -webkit-backdrop-filter:blur(var(--f-blur)) saturate(var(--f-sat)) hue-rotate(var(--f-hue)) brightness(1.05);
+          backdrop-filter:blur(var(--f-blur)) saturate(var(--f-sat)) hue-rotate(var(--f-hue)) brightness(1.05);
+}
+
+/* book cards: the front page of the site, so they get the most frost */
+html[data-surface="glass"] body:not(.reading) .book{
+  background:
+    linear-gradient(160deg,var(--f-sheen),rgba(214,232,255,.02) 42%,transparent 64%),
+    linear-gradient(180deg,rgba(126,158,198,.16),rgba(26,36,52,.14)),
+    var(--f-fill);
+  border:1px solid var(--f-rim);
+  box-shadow:
+    var(--f-shadow),
+    inset 0 1px 0 rgba(226,240,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.22);
+}
+html[data-surface="glass"] body:not(.reading) .book:hover{
+  border-color:rgba(200,222,248,.46);
+  box-shadow:
+    0 20px 52px rgba(4,10,22,.56),
+    0 0 0 1px rgba(178,206,238,.26),
+    inset 0 1px 0 rgba(232,244,255,.30);
+}
+/* the cover well: smoked blue glass instead of warm ink */
+html[data-surface="glass"] body:not(.reading) .book .cover{
+  background:
+    radial-gradient(320px 220px at 50% 0%,rgba(150,186,226,.20),transparent 70%),
+    rgba(12,18,28,.34);
+  border-right:1px solid rgba(190,214,242,.10);
+}
+
+/* rail: cold pane down the left edge */
+html[data-surface="glass"] body:not(.reading) .rail{
+  background:linear-gradient(180deg,rgba(32,44,62,.56),rgba(16,23,34,.50));
+  border-right:1px solid rgba(180,208,240,.13);
+  box-shadow:1px 0 0 rgba(210,230,255,.06),0 0 46px rgba(2,6,16,.50);
+}
+html[data-surface="glass"] body:not(.reading) .rail-div{background:rgba(190,214,242,.11)}
+html[data-surface="glass"] body:not(.reading) .rail-brand,
+html[data-surface="glass"] body:not(.reading) .rail-foot{border-color:rgba(190,214,242,.10)}
+html[data-surface="glass"] body:not(.reading) .ri.on{
+  background:linear-gradient(90deg,rgba(150,186,226,.22),rgba(150,186,226,.05));
+  box-shadow:inset 0 1px 0 rgba(214,232,255,.13);
+}
+
+/* contents pane */
+html[data-surface="glass"] body:not(.reading) .toc{
+  background:linear-gradient(180deg,rgba(32,44,62,.66),rgba(15,22,33,.62));
+  border-right:1px solid rgba(180,208,240,.14);
+  box-shadow:18px 0 60px rgba(2,6,16,.62),inset -1px 0 0 rgba(210,230,255,.09);
+}
+
+/* chapter rows / desk / follow share one cooler cut */
+html[data-surface="glass"] body:not(.reading) .chaps,
+html[data-surface="glass"] body:not(.reading) .desk{
+  background:
+    linear-gradient(180deg,rgba(214,232,255,.10),rgba(214,232,255,.014) 34%,transparent 70%),
+    var(--f-fill-soft);
+  border:1px solid var(--f-rim);
+  box-shadow:var(--f-shadow),inset 0 1px 0 rgba(226,240,255,.19);
+}
+html[data-surface="glass"] body:not(.reading) .chap{border-bottom:1px solid rgba(190,214,242,.08)}
+html[data-surface="glass"] body:not(.reading) .chap:hover{
+  background:linear-gradient(90deg,rgba(150,186,226,.17),rgba(214,232,255,.06));
+  box-shadow:inset 0 1px 0 rgba(226,240,255,.12);
+}
+html[data-surface="glass"] body:not(.reading) .follow{
+  background:
+    linear-gradient(160deg,rgba(150,186,226,.18),rgba(150,186,226,.02) 70%),
+    var(--f-fill-soft);
+  border:1px solid rgba(170,200,234,.30);
+}
+html[data-surface="glass"] body:not(.reading) .cc{
+  background:linear-gradient(160deg,rgba(214,232,255,.11),rgba(214,232,255,.02));
+  border:1px solid rgba(190,214,242,.16);
+  box-shadow:inset 0 1px 0 rgba(226,240,255,.17),0 4px 14px rgba(4,10,22,.24);
+}
+html[data-surface="glass"] body:not(.reading) .cc-face{background:rgba(214,232,255,.085);border:1px solid rgba(190,214,242,.15)}
+html[data-surface="glass"] body:not(.reading) .cc:hover{
+  border-color:rgba(200,222,248,.50);
+  background:linear-gradient(160deg,rgba(150,186,226,.22),rgba(214,232,255,.06));
+}
+
+/* controls: buttons and search get the same cold edge */
+html[data-surface="glass"] body:not(.reading) .btn{
+  background:linear-gradient(180deg,rgba(230,242,255,.15),rgba(230,242,255,.04));
+  border:1px solid rgba(190,214,242,.20);
+  -webkit-backdrop-filter:blur(15px) saturate(120%) hue-rotate(var(--f-hue));
+          backdrop-filter:blur(15px) saturate(120%) hue-rotate(var(--f-hue));
+  box-shadow:inset 0 1px 0 rgba(232,244,255,.24),0 6px 18px rgba(4,10,22,.34);
+}
+html[data-surface="glass"] body:not(.reading) .btn:hover{
+  background:linear-gradient(180deg,rgba(200,222,248,.30),rgba(200,222,248,.13));
+  border-color:rgba(214,234,255,.62);
+}
+html[data-surface="glass"] body:not(.reading) .btn.ghost{
+  background:linear-gradient(180deg,rgba(214,232,255,.09),rgba(214,232,255,.02));
+}
+html[data-surface="glass"] body:not(.reading) .search input{
+  background:rgba(214,232,255,.085);
+  border:1px solid rgba(190,214,242,.18);
+  -webkit-backdrop-filter:blur(15px) saturate(120%) hue-rotate(var(--f-hue));
+          backdrop-filter:blur(15px) saturate(120%) hue-rotate(var(--f-hue));
+}
+html[data-surface="glass"] body:not(.reading) .search input:focus{
+  border-color:rgba(204,228,255,.56);
+  box-shadow:0 0 0 3px rgba(150,186,226,.16),inset 0 1px 0 rgba(226,240,255,.16);
+}
+html[data-surface="glass"] body:not(.reading) .follow-row a,
+html[data-surface="glass"] body:not(.reading) .follow-row button{
+  background:rgba(214,232,255,.09);
+  border:1px solid rgba(190,214,242,.19);
+}
+html[data-surface="glass"] body:not(.reading) .follow-row a:hover,
+html[data-surface="glass"] body:not(.reading) .follow-row button:hover{
+  background:rgba(150,186,226,.24);
+  border-color:rgba(204,228,255,.55);
+}
+
+/* ============================================================ frost: the home pulse
+   `body.home` only. Three light masses breathing at co-prime periods (19s / 26s /
+   34s) so the cycle does not visibly repeat, and the whole field swells very
+   slightly. Long periods and small amplitudes on purpose: this should read as the
+   page breathing, not as a throb. Anything under ~8s reads as a heartbeat and
+   anything over ~12% opacity shift pulls body text contrast around.
+   Nothing here touches layout or text — only the light BEHIND the panels. */
+body.home .win::after{
+  content:"";position:absolute;inset:-10%;pointer-events:none;
+  background:
+    radial-gradient(60% 55% at 22% 18%,rgba(146,174,206,.26),transparent 66%),
+    radial-gradient(58% 52% at 82% 74%,rgba(110,140,176,.22),transparent 68%);
+  filter:blur(70px);
+  mix-blend-mode:screen;
+  opacity:.55;
+  animation:frostBreathe 19s ease-in-out infinite;
+  will-change:opacity,transform;
+}
+@keyframes frostBreathe{
+  0%,100%{opacity:.42;transform:scale(1)      translateY(0)}
+  50%    {opacity:.70;transform:scale(1.045)  translateY(-1.2%)}
+}
+/* the gold lamp in the corner counter-pulses, so the light cools as it swells */
+body.home .win .lamp{animation:aurC 47s ease-in-out infinite,frostGold 26s ease-in-out infinite}
+@keyframes frostGold{
+  0%,100%{opacity:.72;filter:blur(84px) saturate(100%)}
+  50%    {opacity:.52;filter:blur(96px) saturate(86%)}
+}
+body.home .win .lamp2{animation:aurB 61s ease-in-out infinite,frostCool 34s ease-in-out infinite}
+@keyframes frostCool{
+  0%,100%{opacity:.68;filter:blur(92px) saturate(112%)}
+  50%    {opacity:.86;filter:blur(104px) saturate(132%)}
+}
+
+/* the motion switch must stop ALL of it, and so must the OS preference */
+html[data-motion="off"] body.home .win::after,
+html[data-motion="off"] body.home .win .lamp,
+html[data-motion="off"] body.home .win .lamp2{animation:none!important}
+html[data-motion="off"] body.home .win::after{opacity:.55}
+html[data-motion="calm"] body.home .win::after{animation-duration:96s}
+html[data-motion="calm"] body.home .win .lamp,
+html[data-motion="calm"] body.home .win .lamp2{animation-duration:47s,180s}
+@media (prefers-reduced-motion: reduce){
+  body.home .win::after,
+  body.home .win .lamp,
+  body.home .win .lamp2{animation:none!important}
+}
+
+/* frost is heavier than clear glass; trim on phones where 27px is a slideshow */
+@media (max-width:640px){
+  :root{--f-blur:15px;--f-blur-sm:9px}
+  body.home .win::after{filter:blur(44px)}
+}
+
+/* no backdrop-filter at all: opaque cool tint, still frosted-feeling */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html[data-surface="glass"] body:not(.reading) .book,
+  html[data-surface="glass"] body:not(.reading) .chaps,
+  html[data-surface="glass"] body:not(.reading) .desk,
+  html[data-surface="glass"] body:not(.reading) .cc,
+  html[data-surface="glass"] body:not(.reading) .follow{
+    background:var(--f-fill-solid) !important;
+  }
+}
+@media (prefers-reduced-transparency:reduce){
+  html[data-surface="glass"] body:not(.reading) .book,
+  html[data-surface="glass"] body:not(.reading) .chaps,
+  html[data-surface="glass"] body:not(.reading) .desk,
+  html[data-surface="glass"] body:not(.reading) .cc,
+  html[data-surface="glass"] body:not(.reading) .follow{
+    background:var(--f-fill-solid) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+  body.home .win::after{animation:none!important}
+}
+
+/* ============================================================ the sigil
+   A stencil, not a picture. The PNG is pure white with the ink as its ALPHA
+   channel, so `mask-image` lets an element render ONLY where the ink is.
+   Everything inside the masked block is therefore clipped to the sigil's own
+   drawing — which is how colour gets to live inside the line work instead of
+   behind it.
+
+   Do not "improve" this back into an <img> with mix-blend-mode:screen. Screen over
+   white returns white, so the ink would never take the colour. The mask is the
+   whole mechanism.
+   ============================================================ */
+.sigil{
+  position:relative;
+  width:clamp(240px,34vw,430px);
+  aspect-ratio:1/1;
+  display:grid;place-items:center;
+  pointer-events:none;
+}
+
+/* fallback bed: the artwork itself, sitting under the masked block. If the mask
+   PNG fails to load the reader still sees the sigil in plain white; when the mask
+   works the flowing colour covers this completely. Without this, a failed mask
+   renders as absolutely nothing, which reads as "the mark was never added". */
+.sigil-bk{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  opacity:.9;
+  z-index:0;
+  pointer-events:none;
+  /* the fallback stencil is white, so tint it to the site's gold and give it a
+     slight glow; against the dark hero that reads as the same mark, uncoloured. */
+  filter:sepia(1) saturate(2.4) brightness(.86) drop-shadow(0 0 18px rgba(232,201,135,.28));
+}
+/* when the mask actually works, the coloured ink sits on top and the bed is hidden
+   by .sigil-ink's own opaque fill, so there is no double image. */
+.sigil-ink{z-index:1}
+
+/* the masked block: exactly the sigil's silhouette and nothing else.
+   It MUST be absolutely positioned. As a normal child of the `display:grid`
+   parent it becomes a grid item, gets no width of its own, and collapses to 0x0 —
+   which silently makes the whole mask (and the colour inside it) invisible while
+   every computed style still reads correct. */
+.sigil-ink{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  -webkit-mask-image:url("assets/sigil/sigil-mask.png");
+          mask-image:url("assets/sigil/sigil-mask.png");
+  -webkit-mask-size:contain;
+          mask-size:contain;
+  -webkit-mask-position:center;
+          mask-position:center;
+  -webkit-mask-repeat:no-repeat;
+          mask-repeat:no-repeat;
+  /* NO drop-shadow here. A 0-offset blurred shadow on 1px strokes does not sit
+     *behind* them — it renders inside the stroke and washes the colour out to
+     cream. Measured: with the shadow 35.6% of ink pixels were coloured, without
+     it 58.4%. The bloom belongs on .sigil-glow, behind the whole mark. */
+  filter:saturate(128%) brightness(1.06);
+  animation:sigilBreathe 9s ease-in-out infinite;
+  will-change:filter;
+}
+
+/* the colour that flows. Oversized and rotating, clipped by the mask above, so
+   the hues travel through the engraving while the engraving stays still. */
+.sigil-flow{
+  position:absolute;inset:-34%;
+  background:conic-gradient(from 0deg,
+    #d9a24a 0deg,
+    #f2d38a 38deg,
+    #8fb8de 84deg,
+    #4f7fb8 132deg,
+    #c4362b 176deg,
+    #ef8a5e 214deg,
+    #f5d98a 258deg,
+    #6f9fd8 306deg,
+    #d9a24a 360deg);
+  animation:sigilSpin 24s linear infinite;
+  will-change:transform;
+}
+/* a second field, counter-rotating at a co-prime speed. The interference between
+   the two is what makes the colour look like it is moving through rather than
+   simply spinning. */
+.sigil-flow-b{
+  inset:-52%;
+  mix-blend-mode:screen;
+  opacity:.5;
+  animation:sigilSpin 37s linear infinite reverse;
+  background:conic-gradient(from 120deg,
+    #7fb0e0 0deg,
+    #e0a94e 60deg,
+    #ef7a52 120deg,
+    #4a6fa8 190deg,
+    #f2d38a 250deg,
+    #b83a2e 300deg,
+    #7fb0e0 360deg);
+}
+
+/* pooled bloom behind the mark, so it sits in light rather than on it */
+.sigil-glow{
+  position:absolute;inset:-2%;z-index:-1;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 48%,
+    rgba(232,201,135,.26),rgba(127,159,191,.13) 46%,transparent 72%);
+  filter:blur(30px);
+  opacity:.6;
+  animation:sigilPulse 11s ease-in-out infinite;
+}
+
+@keyframes sigilSpin{
+  from{transform:rotate(0deg)}
+  to  {transform:rotate(360deg)}
+}
+@keyframes sigilBreathe{
+  0%,100%{filter:saturate(122%) brightness(1.02)}
+  50%    {filter:saturate(136%) brightness(1.12)}
+}
+@keyframes sigilPulse{
+  0%,100%{opacity:.42;transform:scale(.97)}
+  50%    {opacity:.72;transform:scale(1.05)}
+}
+
+/* ---- placement: the home hero */
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:clamp(20px,4vw,64px);
+  align-items:center;
+}
+.hero-sigil{
+  justify-self:end;
+  animation:sigilFloat 14s ease-in-out infinite;
+}
+@keyframes sigilFloat{
+  0%,100%{transform:translateY(0)}
+  50%    {transform:translateY(-14px)}
+}
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:minmax(0,1fr)}
+  .hero-sigil{
+    justify-self:center;order:-1;
+    width:clamp(180px,46vw,260px);
+    margin-bottom:6px;
+  }
+}
+
+/* ---- the rail emblem: same mechanism, but it needs ROOM and a narrow palette.
+   Two separate reasons it read as a smudge:
+     1. SIZE. The sigil's strokes are ~1px at 1441px, so at 22px there was 0.05px
+        of detail per stroke. Rendered a size ladder over the site background:
+        18/22px are a golden blur, 28px muddy, 34px the first that reads.
+     2. PALETTE. Even at 48px the full rainbow conic fragments the filigree into
+        coloured blobs — measured against a gold-only version, the rainbow reads
+        as noise and the single-hue version keeps the ornate structure.
+   The rail is a navigation identity mark, not the hero, so it gets one hue family
+   and the width. 66px rail, 9px padding, 48px mark - it fits exactly. */
+.rail-brand{padding:0 9px;height:72px;gap:10px}
+.rail-brand .sigil-mini{
+  width:48px;height:48px;flex:none;display:block;position:relative;
+}
+.rail-brand .sigil-ink-mini{
+  width:100%;height:100%;
+  filter:saturate(112%) brightness(1.16);
+  animation:none;
+  /* the full 1441px mask is 181 KB; at 48px a 128px copy is indistinguishable
+     and saves that download on every page in the site */
+  -webkit-mask-image:url("assets/sigil/sigil-mask-sm.png");
+          mask-image:url("assets/sigil/sigil-mask-sm.png");
+            mask-size:contain;
+  -webkit-mask-size:contain;
+}
+/* gold family only: the gradient still rotates, so light moves through the mark,
+   but every hue stays within gold-amber so the ornament stays legible. */
+.rail-brand .sigil-ink-mini .sigil-flow{
+  inset:-30%;
+  background:conic-gradient(from 0deg,
+    #f5dda2 0deg,
+    #e0b667 54deg,
+    #c9a45c 120deg,
+    #a8843c 196deg,
+    #edc882 268deg,
+    #f5dda2 360deg);
+  animation-duration:22s;
+}
+
+/* ---- motion switch must stop all of it */
+html[data-motion="off"] .sigil-flow,
+html[data-motion="off"] .sigil-ink,
+html[data-motion="off"] .sigil-glow,
+html[data-motion="off"] .hero-sigil{animation:none!important}
+
+/* calm keeps the colour travelling but kills the pulse and the float, so nothing
+   throbs at a reader while they work */
+html[data-motion="calm"] .sigil-ink{animation:none!important}
+html[data-motion="calm"] .sigil-glow{animation:none!important}
+html[data-motion="calm"] .hero-sigil{animation:none!important}
+html[data-motion="calm"] .sigil-flow{animation-duration:120s}
+html[data-motion="calm"] .sigil-flow-b{display:none}
+
+@media (prefers-reduced-motion: reduce){
+  .sigil-flow,.sigil-ink,.sigil-glow,.hero-sigil{animation:none!important}
+}
+
+/* low-power screens: one flow, no bloom */
+@media (max-width:640px){
+  .sigil{width:clamp(200px,52vw,280px)}
+  .sigil-flow-b{display:none}
+  .sigil-glow{filter:blur(18px);opacity:.45}
+  .sigil-ink{filter:saturate(126%) brightness(1.08)}
+}
+
+/* If mask-image is unsupported the masked block renders as a solid coloured
+   rectangle — worse than useless. Fall back to the plain glyph. */
+@supports not ((-webkit-mask-image:url("x")) or (mask-image:url("x"))){
+  .sigil-ink{
+    -webkit-mask:none;mask:none;
+    background:url("assets/sigil/sigil-mask.png") center/contain no-repeat;
+  }
+  .sigil-flow{display:none}
+}
+
+/* ============================================================ reading surface
+   Switched by html[data-sheet]. Three states, all persisted, all first-class:
+
+     (no attribute) / [data-sheet="paper"]   the printed page  - default
+     [data-sheet="glass"]                    frosted pane over a starfield
+     [data-sheet="night"]                    solid dark, no stars
+
+   Everything is gated on `body.reading`, so browsing pages are untouched. */
+
+/* ---------------------------------------------------------------- the sky
+   On `html`, not on `.paper`: the sheet must be able to refract something.
+
+   GATED WITH :has(body.reading) ON PURPOSE. The first version keyed only on
+   [data-sheet="glass"], so a reader who had chosen Glass got a starfield painted
+   behind the LIBRARY and the book hubs too - 68 gradient layers on the home page,
+   competing with the site's own aurora. The sheet preference must only ever affect
+   pages you read prose on. `:has` is supported everywhere `backdrop-filter` is. */
+html[data-sheet="glass"]:has(body.reading){
+  background:
+    radial-gradient(circle 43.7px at 18.32% 56.49%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 43.3px at 73.35% 93.16%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 26.8px at 50.10% 95.87%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 24.5px at 69.53% 24.94%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 40.1px at 52.44% 31.73%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 27.5px at 75.95% 26.16%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 31.7px at 31.58% 81.83%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 32.3px at 47.17% 63.38%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 36.3px at 23.84% 97.21%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 27.6px at 52.95% 29.72%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),radial-gradient(circle 29.1px at 42.98% 73.87%,rgba(244,248,255,.14) 0%,rgba(244,248,255,.14) 34%,transparent 96%),
+    radial-gradient(circle 24.7px at 28.52% 90.21%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 25.4px at 25.79% 79.84%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 25.9px at 5.58% 28.63%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 25.9px at 96.05% 19.46%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 24.7px at 32.88% 71.21%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 18.0px at 28.55% 47.88%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 22.3px at 0.66% 96.19%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 16.4px at 12.25% 43.02%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 16.3px at 72.60% 81.01%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 19.2px at 72.27% 99.92%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 19.7px at 12.38% 81.67%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 20.2px at 71.01% 60.18%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 15.4px at 73.92% 56.57%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 17.5px at 42.71% 11.16%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 19.1px at 62.82% 3.95%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 19.7px at 90.41% 11.26%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 19.2px at 81.00% 9.25%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 24.6px at 40.67% 68.32%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 23.9px at 65.10% 10.71%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),radial-gradient(circle 18.5px at 84.85% 70.82%,rgba(226,236,255,.22) 0%,rgba(226,236,255,.22) 35%,transparent 100%),
+    radial-gradient(circle 14.6px at 81.16% 63.33%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.1px at 15.71% 86.40%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 13.8px at 32.62% 90.87%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 10.4px at 77.17% 54.50%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.9px at 58.80% 44.65%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 10.2px at 63.27% 77.00%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 9.7px at 19.06% 2.27%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 13.6px at 70.81% 90.54%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 14.4px at 76.60% 44.53%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 11.9px at 74.67% 97.20%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.6px at 67.26% 33.19%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 10.6px at 58.53% 95.38%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 9.5px at 67.68% 85.69%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 9.8px at 46.71% 46.84%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 14.0px at 47.14% 16.75%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 14.0px at 92.49% 84.38%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 14.2px at 8.36% 95.01%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 11.7px at 81.95% 34.24%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 10.5px at 50.86% 41.75%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 10.2px at 52.21% 5.22%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 9.7px at 74.32% 31.05%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.3px at 47.27% 97.48%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.1px at 2.58% 69.79%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.9px at 62.01% 5.58%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 11.4px at 86.36% 1.01%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 13.9px at 37.07% 0.08%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 9.8px at 72.38% 68.39%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.1px at 47.65% 88.18%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 11.7px at 63.04% 30.49%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 14.5px at 29.91% 27.16%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 12.8px at 35.14% 11.79%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 11.7px at 30.73% 14.78%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 13.3px at 32.04% 97.73%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),radial-gradient(circle 13.0px at 72.67% 41.44%,rgba(206,224,255,.30) 0%,rgba(206,224,255,.30) 35%,transparent 100%),
+    radial-gradient(60% 45% at 78% 12%,rgba(96,132,178,.16),transparent 68%),radial-gradient(55% 40% at 18% 82%,rgba(150,120,70,.10),transparent 70%),radial-gradient(120% 90% at 50% 50%,#0a0f1a 0%,#070a12 55%,#05070d 100%);
+  background-attachment:fixed;
+}
+/* the body must not paint over the sky */
+html[data-sheet="glass"] body.reading{background:transparent}
+
+/* The starfield used to drift: `animation: skyDrift 260s linear infinite` on
+   <html>, moving background-position across four gradient layers.
+
+   That is a full-viewport repaint on every frame for as long as a chapter is open,
+   and it never stops. Measured in glass mode at 1920x1080: 301ms average frame
+   while scrolling, 61 of 120 frames over 32ms. Disabling this one animation took
+   it to 38ms. Paper and Night never paid it because the rule is gated on glass,
+   which is exactly why glass alone felt heavy.
+
+   background-position cannot be composited. Unlike a transform it is a paint
+   operation on the layer bitmap, and with four viewport-sized gradients that is
+   expensive on any GPU and ruinous on integrated graphics.
+
+   The drift moved 380px over more than four minutes - nobody perceives that as
+   motion. A still starfield reads the same and costs nothing. If parallax is
+   wanted later, the cheap route is a separate fixed element holding the stars and
+   moved with transform, which composites instead of repainting. */
+html[data-sheet="glass"]:has(body.reading){
+  animation:none;
+}
+
+/* ---------------------------------------------------------------- the pane
+   "Glass window" needs an EDGE. Measured review of the first version: it read as
+   text floating in a starfield, because the sheet was uniformly translucent with no
+   boundary anywhere - the word GLASS on the switch was doing all the work.
+
+   So the reading column becomes its own plate: rounded, lit along the top, with a
+   hairline rim and a cast shadow, and slightly darker than the sheet around it.
+   The darkening is load-bearing twice over: it is what makes the pane read as an
+   object in front of the sky, and it is what buys back the contrast that lets the
+   stars stay bright enough to see. */
+html[data-sheet="glass"] body.reading .reader{
+  margin-top:clamp(18px,3vh,40px);
+  margin-bottom:clamp(24px,4vh,56px);
+  background:
+    linear-gradient(158deg,rgba(214,234,255,.07),rgba(214,234,255,.015) 44%,transparent 74%),
+    rgba(11,16,25,.56);
+  border:1px solid rgba(196,220,250,.17);
+  border-radius:15px;
+  box-shadow:
+    inset 0 1px 0 rgba(228,242,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.30),
+    inset 0 0 60px rgba(120,160,210,.06),
+    0 26px 74px rgba(3,6,14,.58),
+    0 2px 10px rgba(3,6,14,.34);
+  -webkit-backdrop-filter:blur(7px) saturate(118%);
+          backdrop-filter:blur(7px) saturate(118%);
+/* Blur RADIUS is not what costs: 7px, 4px, 2px and saturate-only all measured
+   ~35ms per frame in glass mode. The cost is the filtered AREA - this pane is
+   720 x ~13,600px, so ~9.8 megapixels are filtered when only ~1080 rows are ever
+   visible. `will-change:backdrop-filter` was tried here and made it worse (37ms
+   vs 31ms), so it is deliberately absent.
+
+   What is left is the intrinsic price of a full-column frosted pane on this GPU
+   (measured: glass ~31ms/frame vs paper ~17ms on Intel UHD 620). It is a
+   tenth of what it was - the 260s starfield repaint was 270ms of the 301 - and
+   the remaining gap is the blur itself. Removing it would stop it being glass. */
+}
+/* a sheen across the top-left corner, the way light catches a pane edge */
+html[data-sheet="glass"] body.reading .reader::before{
+  content:"";position:absolute;inset:0;border-radius:15px;pointer-events:none;
+  background:
+    radial-gradient(58% 44% at 12% 0%,rgba(228,242,255,.13),transparent 62%),
+    radial-gradient(40% 30% at 100% 100%,rgba(150,186,226,.07),transparent 70%);
+  mix-blend-mode:screen;
+}
+/* night keeps the plate, because a defined column is better for reading than a
+   full-bleed wall of text — just without the light */
+html[data-sheet="night"] body.reading .reader{
+  margin-top:clamp(18px,3vh,40px);
+  margin-bottom:clamp(24px,4vh,56px);
+  background:rgba(14,19,28,.72);
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:15px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 10px rgba(0,0,0,.35);
+}
+
+/* the glass sheet itself can now be a touch clearer, since the plate carries the
+   contrast - this is what lets the stars read properly */
+html[data-sheet="glass"] body.reading .paper{
+  background-color:rgba(9,13,21,.55);
+  background-image:none;
+  /* the scrim above is what protects the type; this blur is what makes it glass.
+     This MUST be !important. glass.py sets `body.reading .paper
+     {backdrop-filter:none !important}` so that the PARCHMENT is never frosted -
+     correct for paper, wrong for this sheet. An !important can only be beaten by
+     another !important declared later, and reader_surface_css() is appended after
+     glass_css() precisely so this one wins. */
+  -webkit-backdrop-filter:blur(9px) saturate(126%) brightness(.92)!important;
+          backdrop-filter:blur(9px) saturate(126%) brightness(.92)!important;
+  box-shadow:
+    inset 1px 0 0 rgba(196,220,250,.16),
+    inset 0 1px 0 rgba(196,220,250,.10),
+    inset -1px 0 0 rgba(196,220,250,.06),
+    -24px 0 70px rgba(3,6,14,.55);
+}
+/* there is no page edge to tear on a pane, so the tear is retired and the rake
+   becomes a lit rim */
+html[data-sheet="glass"] body.reading .tear{display:none}
+html[data-sheet="glass"] body.reading .paper:after{
+  background:linear-gradient(90deg,rgba(196,220,250,.13),rgba(196,220,250,.03) 48%,transparent);
+}
+
+/* ---------------------------------------------------------------- ink on glass
+   Every colour the parchment recipe sets is re-stated, because parchment ink is
+   warm and very dark and would be invisible here. Values chosen for 7:1 against
+   the worst-case composited ground. */
+html[data-sheet="glass"] body.reading .reader .prose{color:#efe9da}
+html[data-sheet="glass"] body.reading .reader .chead h1{color:#f2ebdb}
+html[data-sheet="glass"] body.reading .reader .chead .kicker{color:#d9b878}
+html[data-sheet="glass"] body.reading .reader .chead .stats{color:#b4a88f}
+html[data-sheet="glass"] body.reading .reader .chead .rule{
+  background:linear-gradient(90deg,transparent,rgba(217,184,120,.55),transparent);
+}
+html[data-sheet="glass"] body.reading .reader .prose em{color:#e3c68c}
+html[data-sheet="glass"] body.reading .reader .prose strong{color:#fdf6e6}
+html[data-sheet="glass"] body.reading .reader .prose blockquote{
+  color:#c8bb9c;border-left-color:rgba(217,184,120,.55);
+}
+html[data-sheet="glass"] body.reading .reader .prose>p:first-of-type:first-letter{
+  color:#d97b61;
+}
+html[data-sheet="glass"] body.reading .pager{border-top-color:rgba(196,220,250,.16)}
+html[data-sheet="glass"] body.reading footer{
+  color:#a89b82;border-top-color:rgba(196,220,250,.14);
+}
+html[data-sheet="glass"] body.reading footer a{color:#d9b878}
+html[data-sheet="glass"] body.reading .rail{border-right-color:rgba(196,220,250,.10)}
+/* the bookmark control sits on the sheet, so it needs the same treatment */
+html[data-sheet="glass"] body.reading .bm-btn{
+  color:#c8bb9c;border-color:rgba(196,220,250,.20);background:rgba(196,220,250,.06);
+}
+html[data-sheet="glass"] body.reading .bm-btn.on{
+  color:#f2d38a;border-color:rgba(242,211,138,.50);background:rgba(242,211,138,.10);
+}
+
+/* ---------------------------------------------------------------- night
+   The readable end: same ink, no sky, no blur. For anyone who finds stars behind
+   the words distracting, or reading on a screen with poor black levels. */
+html[data-sheet="night"]{background:#07090f}
+html[data-sheet="night"] body.reading{background:transparent}
+html[data-sheet="night"] body.reading .paper{
+  background-color:#0c1018;
+  background-image:none;
+}
+html[data-sheet="night"] body.reading .tear{display:none}
+html[data-sheet="night"] body.reading .paper:after{background:none}
+html[data-sheet="night"] body.reading .reader .prose{color:#ece5d4}
+html[data-sheet="night"] body.reading .reader .chead h1{color:#eee7d7}
+html[data-sheet="night"] body.reading .reader .chead .kicker{color:#d9b878}
+html[data-sheet="night"] body.reading .reader .chead .stats{color:#b0a48b}
+html[data-sheet="night"] body.reading .reader .chead .rule{
+  background:linear-gradient(90deg,transparent,rgba(217,184,120,.45),transparent);
+}
+html[data-sheet="night"] body.reading .reader .prose em{color:#dfc287}
+html[data-sheet="night"] body.reading .reader .prose strong{color:#fbf4e4}
+html[data-sheet="night"] body.reading .reader .prose blockquote{
+  color:#c4b796;border-left-color:rgba(176,138,69,.55);
+}
+html[data-sheet="night"] body.reading .reader .prose>p:first-of-type:first-letter{
+  color:#cf7157;
+}
+html[data-sheet="night"] body.reading .pager{border-top-color:rgba(255,255,255,.10)}
+html[data-sheet="night"] body.reading footer{
+  color:#a3967d;border-top-color:rgba(255,255,255,.09);
+}
+html[data-sheet="night"] body.reading footer a{color:#d9b878}
+html[data-sheet="night"] body.reading .rail{border-right-color:rgba(255,255,255,.07)}
+html[data-sheet="night"] body.reading .bm-btn{
+  color:#c4b796;border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+}
+
+/* ---------------------------------------------------------------- the switch
+   Reviewed and revised: the first version's active state was too subtle to tell
+   apart from a hover, and the Bookmark ACTION sat in the same row as the surface
+   MODES, which muddled the hierarchy. The active pill is now the site's gold, and
+   the control is labelled so it reads as a setting rather than a button group. */
+.sheet-sw{
+  display:inline-flex;align-items:center;gap:2px;
+  margin:22px auto 0;padding:3px;
+  border:1px solid rgba(120,98,60,.34);border-radius:999px;
+  background:rgba(255,255,255,.10);
+}
+/* the label must sit OUTSIDE the bordered pill. As a ::before on .sheet-sw it
+   landed inside the border and read as a fourth option. */
+.sheet-wrap{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin:22px 0 0;flex-wrap:wrap;
+}
+.sheet-wrap .lbl{
+  font-size:.6rem;letter-spacing:.17em;text-transform:uppercase;
+  color:#8a7444;white-space:nowrap;
+}
+html[data-sheet="glass"] .sheet-wrap .lbl{color:#9fb0c6}
+html[data-sheet="night"] .sheet-wrap .lbl{color:#948872}
+.sheet-sw{margin:0}
+.sheet-sw button{
+  font:inherit;font-size:.68rem;letter-spacing:.10em;text-transform:uppercase;
+  padding:5px 13px;border:0;border-radius:999px;cursor:pointer;
+  background:none;color:#7a6437;transition:background .15s,color .15s;
+}
+.sheet-sw button:hover{color:#5b4a28;background:rgba(120,98,60,.10)}
+/* the active state must be unmistakable - it is a persisted setting, not a hover */
+.sheet-sw button.on{
+  background:#7d5a1c;color:#fdf6e6;font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 1px 3px rgba(0,0,0,.28);
+}
+/* on glass and night the control rides on the dark pane, so it inverts with it */
+html[data-sheet="glass"] .sheet-sw{
+  border-color:rgba(196,220,250,.22);background:rgba(196,220,250,.07);
+}
+html[data-sheet="glass"] .sheet-sw::before{color:#9fb0c6}
+html[data-sheet="glass"] .sheet-sw button{color:#b6a98f}
+html[data-sheet="glass"] .sheet-sw button:hover{color:#e2d6be;background:rgba(196,220,250,.10)}
+html[data-sheet="glass"] .sheet-sw button.on{
+  background:rgba(217,184,120,.92);color:#241a08;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.40),0 1px 4px rgba(0,0,0,.30);
+}
+html[data-sheet="night"] .sheet-sw{
+  border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);
+}
+html[data-sheet="night"] .sheet-sw::before{color:#948872}
+html[data-sheet="night"] .sheet-sw button{color:#a3967d}
+html[data-sheet="night"] .sheet-sw button:hover{color:#d8cbb2;background:rgba(255,255,255,.07)}
+html[data-sheet="night"] .sheet-sw button.on{
+  background:rgba(217,184,120,.90);color:#241a08;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.36),0 1px 4px rgba(0,0,0,.28);
+}
+/* the switch gets its own line so it is not mistaken for a mode-button next to
+   Bookmark; on the rail it is full width and stays compact */
+body.reading .bm-btn{display:block;margin:0 auto}
+body.reading .sheet-sw{display:flex;width:max-content}
+.motion-sw.sheet-sw{display:flex;width:100%;justify-content:center;margin:6px 0 0}
+.motion-sw.sheet-sw{display:flex}
+.motion-sw .sheet-wrap,.rail .sheet-wrap{display:none}
+.motion-sw.sheet-sw button{padding:5px 7px;font-size:.62rem;letter-spacing:.06em}
+
+/* ---------------------------------------------------------------- guards
+   Motion off / calm must stop the sky drift; a drifting sky behind prose is
+   exactly the thing that would make long reading unpleasant. */
+html[data-motion="off"][data-sheet="glass"]:has(body.reading){animation:none!important}
+html[data-motion="calm"][data-sheet="glass"]:has(body.reading){animation-duration:900s}
+@media (prefers-reduced-motion:reduce){
+  html[data-sheet="glass"]:has(body.reading){animation:none!important}
+}
+/* A phone has no side margin to show sky in, so the pane is inset from the
+   viewport edges. Without this the sheet fills the screen edge to edge and the
+   starfield is completely hidden - measured: zero stars visible at 390px. */
+@media (max-width:640px){
+  html[data-sheet="glass"] body.reading .paper{
+    -webkit-backdrop-filter:blur(7px) saturate(118%);
+            backdrop-filter:blur(7px) saturate(118%);
+    /* all four sides explicitly: .paper is position:fixed with left:66px from
+       the rail offset, so setting only three sides leaves it full-bleed */
+    inset:12px 14px;border-radius:14px;
+  }
+  html[data-sheet="glass"] body.reading .reader{
+    margin:6px 14px 18px;border-radius:12px;
+    background:
+      linear-gradient(158deg,rgba(214,234,255,.07),rgba(214,234,255,.015) 44%,transparent 74%),
+      rgba(11,16,25,.44);
+  }
+  html[data-sheet="glass"] body.reading .reader::before{border-radius:12px}
+}
+/* no backdrop-filter at all: deepen the scrim so contrast holds without the blur */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html[data-sheet="glass"] body.reading .paper{background-color:rgba(9,13,21,.88)}
+}
+@media (prefers-reduced-transparency:reduce){
+  html[data-sheet="glass"] body.reading .paper{
+    background-color:rgba(9,13,21,.96)!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  html[data-sheet="glass"]:has(body.reading){animation:none!important}
+}
+
+/* ============================================================ end of chapter */
+.chend{
+  margin:64px 0 0;padding:26px 0 0;
+  border-top:1px solid rgba(120,98,60,.28);
+  position:relative;z-index:1;
+}
+.chend-top{display:flex;gap:14px;align-items:stretch}
+.chend-top > a,.chend-top > span{
+  flex:1 1 0;min-width:0;
+  display:flex;flex-direction:column;gap:5px;
+  padding:15px 18px;border-radius:11px;
+  border:1px solid rgba(120,98,60,.30);
+  background:rgba(255,255,255,.22);
+  transition:border-color .16s,background .16s,transform .16s;
+}
+.chend-top > a{cursor:pointer}
+.chend-top > a:hover{
+  border-color:rgba(120,98,60,.62);
+  background:rgba(255,255,255,.52);
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(90,70,40,.10);
+}
+.chend-prev.is-end{border-style:dashed;opacity:.72}
+.chend .lb{
+  font-size:.64rem;letter-spacing:.17em;text-transform:uppercase;
+  color:#8a7d63;
+}
+.chend .ttl{
+  font-family:var(--serif);font-size:1.02rem;line-height:1.3;
+  color:#3b2f18;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.chend-prev .chev{display:none}
+/* the next card is the primary action, so it carries the weight */
+/* the next card is the primary action, so it is FILLED, not merely tinted -
+   review measured the first version as "gentle, cards may not look clickable" */
+.chend-next{
+  align-items:flex-end;text-align:right;
+  border-color:rgba(138,47,40,.55)!important;
+  background:linear-gradient(170deg,rgba(138,47,40,.90),rgba(113,48,42,.96))!important;
+  box-shadow:0 8px 22px rgba(90,30,26,.26),inset 0 1px 0 rgba(255,255,255,.16);
+}
+.chend-next:hover{
+  background:linear-gradient(170deg,rgba(150,54,46,.96),rgba(120,50,44,1))!important;
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(90,30,26,.34),inset 0 1px 0 rgba(255,255,255,.20);
+}
+.chend-next .ttl{color:#fdf3e8}
+.chend-next .lb{color:rgba(255,240,225,.80)}
+.chend-next .chev{display:block;font-size:1.05rem;color:rgba(255,246,236,.90);margin-top:2px}
+
+/* where the reader is in the book */
+.chend-meta{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin-top:18px;font-size:.8rem;color:#6f6047;
+  font-variant-numeric:tabular-nums;
+}
+.chend-bar{
+  flex:1 1 90px;height:5px;border-radius:3px;min-width:70px;
+  background:rgba(120,98,60,.26);overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(90,70,40,.14);
+}
+.chend-bar i{display:block;height:100%;border-radius:2px;background:#a8905f}
+.chend-book{margin-left:auto;color:#7a6437;text-decoration:none;white-space:nowrap}
+.chend-book:hover{color:#a03f35;text-decoration:underline}
+
+/* ---- glass sheet */
+html[data-sheet="glass"] .chend{border-top-color:rgba(196,220,250,.16)}
+html[data-sheet="glass"] .chend-top > a,
+html[data-sheet="glass"] .chend-top > span{
+  border-color:rgba(196,220,250,.20);background:rgba(196,220,250,.055);
+}
+html[data-sheet="glass"] .chend-top > a:hover{
+  border-color:rgba(217,184,120,.55);background:rgba(217,184,120,.10);
+}
+html[data-sheet="glass"] .chend .lb{color:#9fb0c6}
+html[data-sheet="glass"] .chend .ttl{color:#e8e2d2}
+html[data-sheet="glass"] .chend-next{
+  border-color:rgba(217,184,120,.55)!important;
+  background:linear-gradient(170deg,rgba(217,184,120,.92),rgba(186,148,80,.96))!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.30);
+}
+html[data-sheet="glass"] .chend-next:hover{
+  background:linear-gradient(170deg,rgba(232,201,135,.98),rgba(200,160,90,1))!important;
+}
+html[data-sheet="glass"] .chend-next .ttl{color:#20180a}
+html[data-sheet="glass"] .chend-next .lb{color:rgba(48,34,10,.78)}
+html[data-sheet="glass"] .chend-next .chev{color:rgba(48,34,10,.85)}
+html[data-sheet="glass"] .chend-meta{color:#c3cfdd}
+html[data-sheet="glass"] .chend-bar{background:rgba(196,220,250,.16)}
+html[data-sheet="glass"] .chend-bar i{background:#d9b878}
+html[data-sheet="glass"] .chend-book{color:#b6a98f}
+html[data-sheet="glass"] .chend-book:hover{color:#f0dcb0}
+
+/* ---- night */
+html[data-sheet="night"] .chend{border-top-color:rgba(255,255,255,.10)}
+html[data-sheet="night"] .chend-top > a,
+html[data-sheet="night"] .chend-top > span{
+  border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04);
+}
+html[data-sheet="night"] .chend-top > a:hover{
+  border-color:rgba(217,184,120,.50);background:rgba(217,184,120,.09);
+}
+html[data-sheet="night"] .chend .lb{color:#948872}
+html[data-sheet="night"] .chend .ttl{color:#e4ddcc}
+html[data-sheet="night"] .chend-next{
+  border-color:rgba(217,184,120,.50)!important;
+  background:linear-gradient(170deg,rgba(217,184,120,.90),rgba(184,146,78,.95))!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.28);
+}
+html[data-sheet="night"] .chend-next:hover{
+  background:linear-gradient(170deg,rgba(232,201,135,.96),rgba(198,158,88,1))!important;
+}
+html[data-sheet="night"] .chend-next .ttl{color:#1c1508}
+html[data-sheet="night"] .chend-next .lb{color:rgba(46,32,8,.78)}
+html[data-sheet="night"] .chend-next .chev{color:rgba(46,32,8,.85)}
+html[data-sheet="night"] .chend-meta{color:#b0a388}
+html[data-sheet="night"] .chend-bar{background:rgba(255,255,255,.12)}
+html[data-sheet="night"] .chend-bar i{background:#d9b878}
+html[data-sheet="night"] .chend-book{color:#a3967d}
+html[data-sheet="night"] .chend-book:hover{color:#eed9ad}
+
+/* a phone gets stacked cards: side-by-side titles at 360px are two words wide */
+@media (max-width:560px){
+  .chend-top{flex-direction:column}
+  .chend-next{align-items:flex-start;text-align:left}
+  .chend-meta{font-size:.72rem;gap:9px}
+  .chend-book{margin-left:0;width:100%}
+}
+
+/* ============================================================ start here */
+.sh-list{
+  list-style:none;counter-reset:sh;margin:0;padding:0;
+  display:grid;gap:14px;
+}
+.sh-item{
+  counter-increment:sh;
+  position:relative;
+}
+.sh-item > a{
+  display:block;position:relative;
+  padding:22px 24px 20px 74px;
+  border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);text-decoration:none;
+  transition:border-color .16s,transform .16s,box-shadow .16s,background .16s;
+}
+.sh-item > a::before{
+  content:counter(sh,decimal-leading-zero);
+  position:absolute;left:24px;top:20px;
+  font-family:var(--mono);font-size:.86rem;letter-spacing:.06em;
+  color:var(--gold);opacity:.85;
+}
+.sh-item > a::after{
+  content:"";position:absolute;left:56px;top:18px;bottom:18px;width:1px;
+  background:linear-gradient(180deg,transparent,var(--line),transparent);
+}
+.sh-item > a:hover{
+  border-color:rgba(201,164,92,.55);
+  background:var(--panel-2,var(--panel));
+  transform:translateY(-2px);
+  box-shadow:0 14px 34px rgba(0,0,0,.34);
+}
+.sh-b{
+  font-size:.62rem;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:7px;
+}
+.sh-t{
+  font-family:var(--serif);font-size:1.28rem;line-height:1.22;
+  color:var(--ink);margin-bottom:8px;
+}
+.sh-s{font-size:.9rem;color:var(--dim);line-height:1.55;margin-bottom:14px;max-width:62ch}
+.sh-f{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  font-size:.74rem;color:var(--faint);
+  padding-top:12px;border-top:1px solid var(--line-soft,rgba(255,255,255,.06));
+}
+.sh-cta{margin-left:auto;color:var(--gold-2);letter-spacing:.02em}
+
+/* ---- about */
+.about-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);
+  gap:clamp(24px,4vw,56px);align-items:start;
+}
+.about-grid p{color:var(--ink-2,var(--dim));line-height:1.7;margin:0 0 1.1em;max-width:66ch}
+.about-grid h3{
+  font-family:var(--serif);font-weight:400;font-size:1.12rem;
+  color:var(--ink);margin:1.8em 0 .7em;
+}
+.about-grid a{color:var(--gold-2)}
+.about-side{display:grid;gap:14px;position:sticky;top:90px}
+.sh-note{
+  border:1px solid var(--line);border-radius:11px;padding:16px 18px;
+  background:var(--panel);
+}
+.sh-note-h{
+  font-size:.62rem;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+.sh-note ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.sh-note li{font-size:.83rem;color:var(--dim);display:flex;gap:8px;align-items:baseline}
+.sh-note li b{color:var(--ink-2,var(--ink));font-weight:500}
+.sh-note p{font-size:.83rem;color:var(--dim);line-height:1.6;margin:0}
+
+/* ---- glass surface */
+html[data-surface="glass"] body:not(.reading) .sh-item > a{
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 42%,transparent 66%),var(--f-fill-soft);
+  border-color:var(--f-rim);
+  box-shadow:var(--f-shadow),inset 0 1px 0 rgba(226,240,255,.18);
+}
+html[data-surface="glass"] body:not(.reading) .sh-item > a:hover{
+  border-color:rgba(200,222,248,.50);
+  box-shadow:0 14px 40px rgba(4,10,22,.52),inset 0 1px 0 rgba(232,244,255,.24);
+}
+html[data-surface="glass"] body:not(.reading) .sh-note{
+  background:linear-gradient(160deg,rgba(214,232,255,.09),rgba(214,232,255,.015)),var(--f-fill-soft);
+  border-color:var(--f-rim);
+}
+html[data-surface="glass"] body:not(.reading) .sh-item > a::after{
+  background:linear-gradient(180deg,transparent,rgba(196,220,250,.18),transparent);
+}
+
+/* a phone: the number gutter costs too much width */
+@media (max-width:640px){
+  .about-grid{grid-template-columns:minmax(0,1fr)}
+  .about-side{position:static}
+  .sh-item > a{padding:18px 18px 16px}
+  .sh-item > a::before{position:static;display:block;margin-bottom:6px}
+  .sh-item > a::after{display:none}
+}
+
+@keyframes aurA{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  33%    {transform:translate3d(6vw,4vh,0) scale(1.13)}
+  66%    {transform:translate3d(-3vw,7vh,0) scale(.95)}
+}
+@keyframes aurB{
+  0%,100%{transform:translate3d(0,0,0) scale(1.05)}
+  40%    {transform:translate3d(-7vw,-5vh,0) scale(.92)}
+  72%    {transform:translate3d(3vw,-8vh,0) scale(1.16)}
+}
+@keyframes aurC{
+  0%,100%{transform:translate3d(0,0,0) scale(.95);opacity:.34}
+  50%    {transform:translate3d(-6vw,6vh,0) scale(1.2);opacity:.55}
+}
+@keyframes drift{
+  0%  {transform:translate3d(0,0,0)}
+  100%{transform:translate3d(-220px,150px,0)}
+}
+@media (prefers-reduced-motion: reduce){
+  .win .aur,.win .stars,.win .stars2{animation:none!important}
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sarvagya-sitara-hub.github.io/land-of-myths/sitemap.xml

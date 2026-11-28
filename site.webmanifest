@@ -1,0 +1,17 @@
+{
+  "name": "Land of Myths",
+  "short_name": "Land of Myths",
+  "description": "The holy land of Sarvagya Sitara",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0c11",
+  "theme_color": "#0a0c11",
+  "icons": [
+    {
+      "src": "https://sarvagya-sitara-hub.github.io/land-of-myths/assets/sigil/sigil-glyph.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
